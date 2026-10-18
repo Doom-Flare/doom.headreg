@@ -18,6 +18,8 @@
 3. 确认：`/function headreg:api/list` 应回一行 `[headreg] 已登记玩家：`（装载失败会刷红字，成功时不提示）
 4. 自检：`/function headreg:test/run` → 看到 `37/37` 即正常
 
+下载后核对：`dist/SHA256SUMS.txt`（release 里同名附件）列出的是**每个区间包**的校验值，不是解压后的文件。
+
 ---
 
 ## 版本支持

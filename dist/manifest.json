@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-18T14:08:02.854Z",
+  "at": "2026-10-18T14:38:59.885Z",
   "clusters": [
     {
       "zip": "doom.headreg-1.20.2.zip",
@@ -30,8 +30,8 @@
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
       "entries": 85,
-      "bytes": 73299,
-      "sha256": "5a9305b3fce46bcf4ca5145a11bae44ec467a08958e3b1c3a403360ca7936832"
+      "bytes": 73951,
+      "sha256": "921559e837338b11e506dec1addad1d560baf1819cd280899bb740c6773e7a01"
     },
     {
       "zip": "doom.headreg-1.20.3-1.20.4.zip",
@@ -62,8 +62,8 @@
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
       "entries": 85,
-      "bytes": 73293,
-      "sha256": "53a7519671cfe2f1180f8c3c04a2c5ac9670166e2e321d4a1ca4aed69e58ee2c"
+      "bytes": 73945,
+      "sha256": "9c81a594da7ff505d727c7cb5b28ae3050322e1694bd7e52176e76adbb9ba034"
     },
     {
       "zip": "doom.headreg-1.20.5-1.20.6.zip",
@@ -92,8 +92,8 @@
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
       "entries": 84,
-      "bytes": 72783,
-      "sha256": "47682ba38c52a72aa338056f2b7c4889ab9f26f87e57983c5f41c9584aafbd87"
+      "bytes": 73435,
+      "sha256": "1a6e15fe6bd49862c2d1a8a9cf753691240bb7c07472963fc7ea57f05ff10948"
     },
     {
       "zip": "doom.headreg-1.21-26.2.zip",
@@ -136,8 +136,8 @@
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
       "entries": 84,
-      "bytes": 72634,
-      "sha256": "5438ba500ebf511c460eca4212a4c86999c0d576ae6d3a492c4d194a2ac2fab8"
+      "bytes": 73286,
+      "sha256": "ba37f825eb7ee9fb4df37d35b47e4e47cfa5004699de49ea5e9943ab2803b621"
     },
     {
       "zip": "doom.headreg-26.3.zip",
@@ -162,8 +162,8 @@
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
       "entries": 84,
-      "bytes": 72581,
-      "sha256": "6da4568e0b765b1ed7250d81249c51cc3450e7b97a6018b57b8282fcc2e9dafb"
+      "bytes": 73233,
+      "sha256": "7b46845e1396cb7d5200bcc5da04709731a3912c614e23bfa84b98a7cafcac9e"
     }
   ]
 }
