@@ -1,0 +1,169 @@
+{
+  "at": "2026-10-18T14:08:02.854Z",
+  "clusters": [
+    {
+      "zip": "doom.headreg-1.20.2.zip",
+      "from": "1.20.2",
+      "to": "1.20.2",
+      "versions": [
+        "1.20.2"
+      ],
+      "style": "plural",
+      "patches": [
+        "P2-legacy-skullowner-head",
+        "P3-no-return-run"
+      ],
+      "meta": {
+        "pack_format": 18,
+        "supported_formats": {
+          "min_inclusive": 18,
+          "max_inclusive": 18
+        },
+        "min_format": [
+          18,
+          0
+        ],
+        "max_format": [
+          18,
+          0
+        ],
+        "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
+      },
+      "entries": 85,
+      "bytes": 73299,
+      "sha256": "5a9305b3fce46bcf4ca5145a11bae44ec467a08958e3b1c3a403360ca7936832"
+    },
+    {
+      "zip": "doom.headreg-1.20.3-1.20.4.zip",
+      "from": "1.20.3",
+      "to": "1.20.4",
+      "versions": [
+        "1.20.3",
+        "1.20.4"
+      ],
+      "style": "plural",
+      "patches": [
+        "P2-legacy-skullowner-head"
+      ],
+      "meta": {
+        "pack_format": 26,
+        "supported_formats": {
+          "min_inclusive": 26,
+          "max_inclusive": 26
+        },
+        "min_format": [
+          26,
+          0
+        ],
+        "max_format": [
+          26,
+          0
+        ],
+        "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
+      },
+      "entries": 85,
+      "bytes": 73293,
+      "sha256": "53a7519671cfe2f1180f8c3c04a2c5ac9670166e2e321d4a1ca4aed69e58ee2c"
+    },
+    {
+      "zip": "doom.headreg-1.20.5-1.20.6.zip",
+      "from": "1.20.5",
+      "to": "1.20.6",
+      "versions": [
+        "1.20.5",
+        "1.20.6"
+      ],
+      "style": "plural",
+      "patches": [],
+      "meta": {
+        "pack_format": 41,
+        "supported_formats": {
+          "min_inclusive": 41,
+          "max_inclusive": 41
+        },
+        "min_format": [
+          41,
+          0
+        ],
+        "max_format": [
+          41,
+          0
+        ],
+        "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
+      },
+      "entries": 84,
+      "bytes": 72783,
+      "sha256": "47682ba38c52a72aa338056f2b7c4889ab9f26f87e57983c5f41c9584aafbd87"
+    },
+    {
+      "zip": "doom.headreg-1.21-26.2.zip",
+      "from": "1.21",
+      "to": "26.2",
+      "versions": [
+        "1.21",
+        "1.21.1",
+        "1.21.2",
+        "1.21.3",
+        "1.21.4",
+        "1.21.5",
+        "1.21.6",
+        "1.21.7",
+        "1.21.8",
+        "1.21.9",
+        "1.21.10",
+        "1.21.11",
+        "26.1",
+        "26.1.1",
+        "26.1.2",
+        "26.2"
+      ],
+      "style": "singular",
+      "patches": [],
+      "meta": {
+        "pack_format": 48,
+        "supported_formats": {
+          "min_inclusive": 48,
+          "max_inclusive": 107
+        },
+        "min_format": [
+          48,
+          0
+        ],
+        "max_format": [
+          107,
+          1
+        ],
+        "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
+      },
+      "entries": 84,
+      "bytes": 72634,
+      "sha256": "5438ba500ebf511c460eca4212a4c86999c0d576ae6d3a492c4d194a2ac2fab8"
+    },
+    {
+      "zip": "doom.headreg-26.3.zip",
+      "from": "26.3",
+      "to": "26.3",
+      "versions": [
+        "26.3"
+      ],
+      "style": "singular",
+      "patches": [
+        "P1-item-modifier-type-key"
+      ],
+      "meta": {
+        "min_format": [
+          121,
+          0
+        ],
+        "max_format": [
+          121,
+          0
+        ],
+        "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
+      },
+      "entries": 84,
+      "bytes": 72581,
+      "sha256": "6da4568e0b765b1ed7250d81249c51cc3450e7b97a6018b57b8282fcc2e9dafb"
+    }
+  ]
+}

@@ -1,16 +1,16 @@
 {
   "pack": {
-    "pack_format": 94,
+    "pack_format": 48,
     "supported_formats": {
       "min_inclusive": 48,
-      "max_inclusive": 94
+      "max_inclusive": 107
     },
     "min_format": [
       48,
       0
     ],
     "max_format": [
-      94,
+      107,
       1
     ],
     "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"

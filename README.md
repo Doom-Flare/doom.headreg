@@ -4,7 +4,8 @@
 
 不装 mod、不改配置、不需要前置；没有 OP 的普通玩家也能用 `/trigger` 查自己的记录。
 
-- **验收版本**：1.21.11（`pack_format` 94，`supported_formats` 48–94）
+- **实测版本**：**1.20.2 – 26.3，共 22 个版本全部真机跑通**（每版 37/37 断言、0 条加载错误），映射表见下方「版本支持」
+- **本仓 `data/` 是 1.21 – 26.2 那一类**（16 个版本共用同一份数据树）；其余版本请取 `dist/` 里对应的区间包
 - **依赖**：无。`data/minecraft/tags/function/{load,tick}.json` 已接好，放进 `world/datapacks/` 再 `/reload` 即可
 - **自检**：包内 37 个断言 + `api/audit` 7 项一致性检查
 
@@ -12,10 +13,28 @@
 
 ## 安装
 
-1. 解压 `dist/doom.headreg-v1.0.0.zip`，把 `doom.headreg/` 整个放进服务器的 `world/datapacks/`
+1. 按你的服务器版本取 `dist/` 里对应的区间包（见下方「版本支持」表），解压后把整个 `doom.headreg/` 放进 `world/datapacks/`
 2. 执行 `/reload`（或重启服务器）
 3. 确认：`/function headreg:api/list` 应回一行 `[headreg] 已登记玩家：`（装载失败会刷红字，成功时不提示）
 4. 自检：`/function headreg:test/run` → 看到 `37/37` 即正常
+
+---
+
+## 版本支持
+
+22 个版本逐个真机跑过（起服 → 部署 → `/reload` → 逐个点名全部函数 → 跑包内 37 条断言）。下表就是实测边界，**没有「理论上应该可以」的行**。
+
+| 取哪个包 | MC 版本 | `pack_format` |
+|---|---|---|
+| `dist/doom.headreg-26.3.zip` | 26.3 | 121.0 |
+| `dist/doom.headreg-1.21-26.2.zip` | 1.21 · 1.21.1 · 1.21.2 · 1.21.3 · 1.21.4 · 1.21.5 · 1.21.6 · 1.21.7 · 1.21.8 · 1.21.9 · 1.21.10 · 1.21.11 · 26.1 · 26.1.1 · 26.1.2 · 26.2 | 48.0 – 107.1 |
+| `dist/doom.headreg-1.20.5-1.20.6.zip` | 1.20.5 · 1.20.6 | 41.0 |
+| `dist/doom.headreg-1.20.3-1.20.4.zip` | 1.20.3 · 1.20.4 | 26.0 |
+| `dist/doom.headreg-1.20.2.zip` | 1.20.2 | 18.0 |
+
+同一行的版本共用**完全相同**的数据树，只是 `pack.mcmeta` 的区间不同 —— 所以一行只有一个包。包里附带的 `pack.mcmeta` 已经写好该行覆盖的区间，直接丢进去即可。
+
+**1.20.1 及更早不支持**：那些版本没有函数宏（`$` 前缀）也没有 `return` 命令，本包核心链路建立在这两者之上，改不动。
 
 ---
 
@@ -99,34 +118,33 @@ function headreg:test/run                                # 包内 37 个断言
 
 ## 兼容性
 
-`pack.mcmeta` 声明 `supported_formats` 48–94（1.21.0 – 1.21.11）。
+版本支持表在前面的「版本支持」一节，那里每一行都是实测边界。
 
-- **实测通过**：1.21.11
-- **同代码段可用、未实测**：1.21.0 – 1.21.10
-- 1.20.5–1.20.6 需要把 `data/<ns>/function/` 改成 `functions/`、`tags/function/` 改成 `tags/functions/`（1.21 起才用单数目录）
-- 1.20.4 及更早不支持：没有 item components（`minecraft:profile`），且缺少 `data modify … set string` 的切片参数
+- 本仓 `pack.mcmeta` 声明 `supported_formats` 48–107.1（1.21.0 – 26.2）—— 这正好是本仓 `data/` 实测跑通的区间。
+- 1.20.x 与 26.3 请用 `dist/` 里对应的包，它们的 `pack.mcmeta` 各自只声明自己那一格，**不写宽区间**：装错版本会立刻报错，而不是静默跑一半。
+- 1.20.2 – 1.20.4 的两个补丁（抓头改用 `item_modifiers/fill_head.json`、1.20.2 拆 `return run`）只存在于 `dist/` 的包里，源码树保持 1.21+ 的写法。
 
 ## 仓库结构
 
 ```text
 doom.headreg/
-├── pack.mcmeta              # pack_format 94，supported 48–94
+├── pack.mcmeta              # supported_formats 48–107.1（1.21 – 26.2）
 ├── data/
 │   ├── headreg/function/    # 77 个 mcfunction（api / internal / test）
 │   └── minecraft/tags/function/{load,tick}.json
-├── dist/                    # 发行 zip + SHA256SUMS.txt
+├── dist/                    # 5 个区间包 + manifest.json + SHA256SUMS.txt
 ├── docs/USAGE.md            # 玩家向说明（说人话版）
 └── .github/                 # 离线静态门（泄漏扫描 / 包体检查 / 发行物一致性）
 ```
 
 ## 开发与校验
 
-本机不需要 Minecraft 就能跑三个静态门：
+本机不需要 Minecraft 就能跑三个静态门（另有 `.github/tools/build_variants.mjs` 用来重新生成 5 个区间包）：
 
 ```bash
 node .github/tools/check_leak.mjs    # 泄漏扫描 + 顶层结构白名单
 node .github/tools/check_pack.mjs    # JSON 可解析 / mcfunction 行级合法性 / 函数引用闭包
-node .github/tools/check_dist.mjs    # dist 的 zip 与包体逐字节一致 + sha256 对得上
+node .github/tools/check_dist.mjs    # 5 个区间包各自与「包体 + 该版本变换」逐字节一致 + sha256 对得上
 ```
 
 真机断言需要 Fabric 服务端与 RCON，测试台在私有开发仓库，不随本仓分发。
