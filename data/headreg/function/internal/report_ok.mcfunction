@@ -1,0 +1,25 @@
+# headreg:internal/report_ok —— 注册成功后的 tellraw 回报
+# 语义提醒：ts 是「该档案最后一次被服务端从 Mojang 拉取的时刻」，不是登录时刻。
+tellraw @s [{"text":"[headreg] ","color":"dark_gray"},{"text":"注册完成","color":"green"}]
+tellraw @s [{"text":"  名称: ","color":"gray"},{"nbt":"root.working_data.name","storage":"headreg:data","color":"white"},{"text":"  数字id: ","color":"gray"},{"score":{"name":"@s","objective":"headreg.id"},"color":"white"}]
+execute if data storage headreg:data root.working_data{premium:1b} run tellraw @s [{"text":"  正版: ","color":"gray"},{"text":"是（档案含 textures 签名）","color":"green"}]
+execute unless data storage headreg:data root.working_data{premium:1b} run tellraw @s [{"text":"  正版: ","color":"gray"},{"text":"否（离线档案，profile 内没有 properties）","color":"red"}]
+tellraw @s [{"text":"  ts_ms: ","color":"gray"},{"nbt":"root.working_data.ts_ms","storage":"headreg:data","color":"aqua"}]
+tellraw @s [{"text":"  ts_sec: ","color":"gray"},{"nbt":"root.working_data.ts_sec","storage":"headreg:data","color":"aqua"}]
+tellraw @s [{"text":"  初次档案(UTC): ","color":"gray"},{"nbt":"root.working_data.first_date_str","storage":"headreg:data","color":"yellow"},{"text":"  本次档案(UTC): ","color":"gray"},{"nbt":"root.working_data.date_str","storage":"headreg:data","color":"gold"}]
+function headreg:internal/format_leave
+function headreg:internal/session_stats
+tellraw @s [{"text":"  现在(UTC): ","color":"gray"},{"nbt":"root.working_data.now_date_str","storage":"headreg:data","color":"aqua"},{"text":"  ← 刚锚定，此刻与档案时刻相同属正常；稍后 /function headreg:api/query 可见它走动","color":"dark_gray"}]
+tellraw @s [{"text":"  本次在线: ","color":"gray"},{"score":{"name":"#sm","objective":"headreg.calc"},"color":"green"},{"text":" 分 ","color":"gray"},{"score":{"name":"#ss","objective":"headreg.calc"},"color":"green"},{"text":" 秒   累计在线: ","color":"gray"},{"score":{"name":"#tm","objective":"headreg.calc"},"color":"green"},{"text":" 分 ","color":"gray"},{"score":{"name":"#ts2","objective":"headreg.calc"},"color":"green"},{"text":" 秒","color":"gray"}]
+execute unless data storage headreg:data root.working_data{settled:1b} run tellraw @s [{"text":"  上段: ","color":"gray"},{"text":"首次登记（没有可结算的上一段）","color":"dark_gray"}]
+execute if data storage headreg:data root.working_data{settled:1b,prev_clean:1b} run tellraw @s [{"text":"  离开次数: ","color":"gray"},{"score":{"name":"@s","objective":"headreg.leave"},"color":"white"},{"text":"   上次离开(约): ","color":"gray"},{"nbt":"root.working_data.last_leave_str","storage":"headreg:data","color":"yellow"}]
+execute if data storage headreg:data root.working_data{settled:1b,prev_clean:0b} run tellraw @s [{"text":"  上段: ","color":"gray"},{"text":"无结束登记（服务端关服下线或统计未落盘）；离开时刻不可信，已隐藏","color":"yellow"}]
+execute if data storage headreg:data root.working_data{settled:1b,prev_clean:1b,exit_kind:"global"} run tellraw @s [{"text":"  上次结束: ","color":"gray"},{"text":"与 ","color":"yellow"},{"nbt":"root.working_data.exit_peers","storage":"headreg:data","color":"yellow"},{"text":" 人同一时刻消失（同一事件：关服 / 全服掉线）","color":"yellow"}]
+execute if data storage headreg:data root.working_data{settled:1b,prev_clean:1b,exit_kind:"personal"} run tellraw @s [{"text":"  上次结束: ","color":"gray"},{"text":"单独离开（同服另有 ","color":"aqua"},{"nbt":"root.working_data.exit_seen","storage":"headreg:data","color":"aqua"},{"text":" 份记录，均不在该时刻）","color":"aqua"}]
+execute if data storage headreg:data root.working_data{settled:1b,prev_clean:1b,exit_kind:"solo"} run tellraw @s [{"text":"  上次结束: ","color":"gray"},{"text":"单独离开（无可比较的同伴，无法判全局/个人）","color":"dark_aqua"}]
+execute if data storage headreg:data root.working_data{prev_clean:0b} run tellraw @s [{"text":"  上段在线(tick): ","color":"gray"},{"text":"不可信（关服回档），已隐藏","color":"dark_gray"}]
+execute if data storage headreg:data root.working_data{settled:1b} if data storage headreg:data root.working_data.prev_play run tellraw @s [{"text":"  上段在线(tick): ","color":"gray"},{"nbt":"root.working_data.prev_play","storage":"headreg:data","color":"white"}]
+tellraw @s [{"text":"  登记次数: ","color":"gray"},{"nbt":"root.working_data.reg_count","storage":"headreg:data","color":"white"}]
+tellraw @s [{"text":"  uuid: ","color":"gray"},{"nbt":"root.working_data.uuid_str","storage":"headreg:data","color":"white"}]
+tellraw @s [{"text":"  查询他人: 名单 /trigger headreg.qlist ，看某人 /trigger headreg.query set <编号>","color":"dark_gray"},{"text":"  按名字: /function headreg:api/query_name {name:你的名字}（需 OP）","color":"dark_gray"}]
+tellraw @s [{"text":"  提示: 该时间戳含义是「档案获取时刻」（Mojang session server 每次响应现生成，专用服务器 10 分钟内命中 ProfileResolver.Cached 会返回同一份），不代表登录时刻。","color":"dark_gray"}]
