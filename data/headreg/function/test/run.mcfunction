@@ -2,7 +2,7 @@
 # 用法：/function headreg:test/run（控制台亦可，结果 tellraw @a）
 # 边界：只覆盖不依赖玩家上下文的纯函数；会话结算（settle/exit_kind/session_stats）必须真机验证
 # 覆盖：日期渲染 13 例（9 常规 + 4 极端：跨年、闰日、1970 起点）/ uuid 反解析 4 例 /
-#       时钟换算 9 例（3 常规 + 4 边界 + 2 跨重启）/ 会话记录 3 例 / 名字索引 7 例，共 36 例
+#       时钟换算 10 例（3 常规 + 7 偏移与跨重启）/ 会话记录 3 例 / 名字索引 7 例，共 37 例
 # 注意：uuid 用例会临时写 root.working_data.id、时钟用例会临时改写 headreg:clock（含 boot/prev，跑完原样恢复），
 #       不要在有人正在注册的那一 tick 执行
 scoreboard players set #calls headreg.test 0
