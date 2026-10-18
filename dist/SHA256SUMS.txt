@@ -1,1 +1,1 @@
-7dd22bf3382584f7a8b43a98eb9f0c67635896aaa5f55f4ddd34a1a20e69f043  doom.headreg-v1.0.0.zip
+a006d2d42d331458e85ab1b506ec2142559ff56d17bf2b7bcb10ebd9f0a8715e  doom.headreg-v1.0.0.zip

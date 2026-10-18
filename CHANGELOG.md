@@ -22,9 +22,10 @@
 - **玩家自助**：`/trigger headreg.qlist set 1`（名单）、`/trigger headreg.query set <编号>`（本人档案），无需 OP。
 - **只读自检**：`api/audit` 7 项一致性检查，绿字一行或逐条红字 + 汇总。
 
-### 本次修掉的两个真缺陷（clean-room 重测发现）
+### 本次修掉的三个真缺陷
 
-- **`api/audit` 对离线档案误报**：离线档案合法地没有 `last_leave_sec`，原本被判失败。改为只对正版档案要求该字段。
+- **`api/query_id` 查不存在的编号会多打一行**：命中判断只覆盖了前 5 行，末尾「历史会话 暂无」漏了 `if data` 门 ⇒ 查 `{id:99}` 时除了红字「没有 id 为 99 的登记记录」还跟着一句让人误解的空历史提示。已给该行补上桶存在判断。
+- **`api/audit` 对离线档案误报**：离线档案合法地没有 `last_leave_sec`，原本被判失败。改为只对 `premium:1b` 的档案要求该字段。
 - **跨重启结算整体后移一个停机时长**：`gametime` 在停机期间不走、墙钟在走，用新锚点折算重启前的 `last_seen` 会整体偏移。改为 `load` 留档 `clock.prev` + `schedule 1t` 记 `clock.boot`，结算时按 `last_seen < boot` 选锚点，并加可信度守卫（`sec ≥ 1e9`、`tick ≥ 1`），不可信则回落当前锚点。
 
 ### 兼容性

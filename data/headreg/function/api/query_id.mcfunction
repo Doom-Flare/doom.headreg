@@ -15,4 +15,4 @@ $execute store result score #qlen headreg.calc run data get storage headreg:data
 scoreboard players set #qi headreg.calc 1
 execute if score #qlen headreg.calc matches 1.. run tellraw @s [{"text":"  历史会话 ","color":"gray"},{"score":{"name":"#qlen","objective":"headreg.calc"},"color":"white"},{"text":" 段（旧 → 新）","color":"dark_gray"}]
 execute if score #qlen headreg.calc matches 1.. run function headreg:internal/render_history
-execute if score #qlen headreg.calc matches ..0 run tellraw @s [{"text":"  历史会话 暂无（要等下一次进服结算出上一段）","color":"dark_gray"}]
+$execute if data storage headreg:data root.$(id) if score #qlen headreg.calc matches ..0 run tellraw @s [{"text":"  历史会话 暂无（要等下一次进服结算出上一段）","color":"dark_gray"}]
