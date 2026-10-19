@@ -4,10 +4,10 @@
 
 不装 mod、不改配置、不需要前置；没有 OP 的普通玩家也能用 `/trigger` 查自己的记录。
 
-- **实测版本**：**1.20.2 – 26.3，共 22 个版本全部真机跑通**（每版 37/37 断言、0 条加载错误），映射表见下方「版本支持」
-- **本仓 `data/` 是 1.21 – 26.2 那一类**（16 个版本共用同一份数据树）；其余版本请取 `dist/` 里对应的区间包
+- **实测版本**：**1.19.4 – 26.3，共 25 个版本全部真机跑通**（主线 22 版各 37/37 断言、legacy 3 版各 13/13 断言，全部 0 条加载错误），映射表见下方「版本支持」
+- **本仓 `data/` 是 1.21 – 26.2 那一类**（16 个版本共用同一份数据树）；`legacy/` 下另有 1.19.4 – 1.20.1 的独立实现；其余版本请取 `dist/` 里对应的区间包
 - **依赖**：无。`data/minecraft/tags/function/{load,tick}.json` 已接好，放进 `world/datapacks/` 再 `/reload` 即可
-- **自检**：包内 37 个断言 + `api/audit` 7 项一致性检查
+- **自检**：主线包内 37 个断言 + `api/audit` 7 项一致性检查；legacy 包内 13 个断言
 
 ---
 
@@ -16,7 +16,7 @@
 1. 按你的服务器版本取 `dist/` 里对应的区间包（见下方「版本支持」表），解压后把整个 `doom.headreg/` 放进 `world/datapacks/`
 2. 执行 `/reload`（或重启服务器）
 3. 确认：`/function headreg:api/list` 应回一行 `[headreg] 已登记玩家：`（装载失败会刷红字，成功时不提示）
-4. 自检：`/function headreg:test/run` → 看到 `37/37` 即正常
+4. 自检：`/function headreg:test/run` → 主线包看到 `37/37`、legacy 包看到 `13/13` 即正常
 
 下载后核对：`dist/SHA256SUMS.txt`（release 里同名附件）列出的是**每个区间包**的校验值，不是解压后的文件。
 
@@ -24,7 +24,7 @@
 
 ## 版本支持
 
-22 个版本逐个真机跑过（起服 → 部署 → `/reload` → 逐个点名全部函数 → 跑包内 37 条断言）。下表就是实测边界，**没有「理论上应该可以」的行**。
+25 个版本逐个真机跑过（起服 → 部署 → `/reload` → 逐个点名全部函数 → 跑包内断言）。下表就是实测边界，**没有「理论上应该可以」的行**。
 
 | 取哪个包 | MC 版本 | `pack_format` |
 |---|---|---|
@@ -33,10 +33,20 @@
 | `dist/doom.headreg-1.20.5-1.20.6.zip` | 1.20.5 · 1.20.6 | 41.0 |
 | `dist/doom.headreg-1.20.3-1.20.4.zip` | 1.20.3 · 1.20.4 | 26.0 |
 | `dist/doom.headreg-1.20.2.zip` | 1.20.2 | 18.0 |
+| `dist/doom.headreg-1.20-1.20.1.zip` | 1.20 · 1.20.1 | 15 |
+| `dist/doom.headreg-1.19.4.zip` | 1.19.4 | 12 |
 
 同一行的版本共用**完全相同**的数据树，只是 `pack.mcmeta` 的区间不同 —— 所以一行只有一个包。包里附带的 `pack.mcmeta` 已经写好该行覆盖的区间，直接丢进去即可。
 
-**1.20.1 及更早不支持**：那些版本没有函数宏（`$` 前缀）也没有 `return` 命令，本包核心链路建立在这两者之上，改不动。
+**前 5 行是主线树，后 2 行是 legacy 树 —— 两套代码，不是同一份的裁剪版。** 主线核心链路建立在函数宏（`$` 前缀）与 `return` 命令之上，这两样在 1.20.1 及更早都不完整，所以 `legacy/` 是**独立实现**：字面分派表 + 固定中转槽，全程不用宏、不用 `return`，用 `#abort` 标志替代早退。
+
+legacy 的三条能力差距，装之前先知道：
+
+1. **没有名字索引**，只能按编号查，不能按名字查。
+2. **时间只到秒**，且 `ts_sec` 是 int32，**2038-01-19 之后溢出**。
+3. **`exit_kind` 有顺序依赖**：同一批一起退出的人里，只有**最后结算**的那个能判成 `global`，先结算的会得到 `personal`。这是 O(1) 全局哨兵的结构性限制 —— 先结算的人无从得知后结算者的离开时刻。看到 `global` 可以确信「确实有人和我同时走」；看到 `personal` **不代表**我是单独走的。需要精确人数请用主线版。
+
+仓库里的 `legacy/README.md` 有完整说明（含实测证据与「为什么不修」的取舍），该文件不随包分发。
 
 ---
 
@@ -118,6 +128,8 @@ function headreg:test/run                                # 包内 37 个断言
 5. **历史最多 10 段**，超出丢最旧的；`dur_sec` 与 `out_sec - in_sec` 可能差 1 秒（取整）。
 6. **`/reload` 会覆盖 `clock.prev`**：当次运行内仍是精确映射，但跨重启的留档退化为旧行为。
 
+以上 6 条主线与 legacy 共有。legacy 额外还有：没有名字索引、时间精度只到秒且 2038 溢出、`exit_peers` 恒 0、`prev_play` 是秒折算成 tick（精度更低）、`exit_kind` 有顺序依赖。
+
 ## 兼容性
 
 版本支持表在前面的「版本支持」一节，那里每一行都是实测边界。
@@ -134,19 +146,21 @@ doom.headreg/
 ├── data/
 │   ├── headreg/function/    # 77 个 mcfunction（api / internal / test）
 │   └── minecraft/tags/function/{load,tick}.json
-├── dist/                    # 5 个区间包 + manifest.json + SHA256SUMS.txt
+├── legacy/                  # 1.19.4 – 1.20.1 独立实现（100 个 mcfunction，无宏无 return）
+│   │   data/ · build/gen.mjs · README.md
+├── dist/                    # 7 个区间包 + manifest.json + SHA256SUMS.txt
 ├── docs/USAGE.md            # 玩家向说明（说人话版）
 └── .github/                 # 离线静态门（泄漏扫描 / 包体检查 / 发行物一致性）
 ```
 
 ## 开发与校验
 
-本机不需要 Minecraft 就能跑三个静态门（另有 `.github/tools/build_variants.mjs` 用来重新生成 5 个区间包）：
+本机不需要 Minecraft 就能跑三个静态门（另有 `.github/tools/build_variants.mjs` 用来重新生成 7 个区间包）：
 
 ```bash
 node .github/tools/check_leak.mjs    # 泄漏扫描 + 顶层结构白名单
 node .github/tools/check_pack.mjs    # JSON 可解析 / mcfunction 行级合法性 / 函数引用闭包
-node .github/tools/check_dist.mjs    # 5 个区间包各自与「包体 + 该版本变换」逐字节一致 + sha256 对得上
+node .github/tools/check_dist.mjs    # 7 个区间包各自与「包体 + 该版本变换」逐字节一致 + sha256 对得上
 ```
 
 真机断言需要 Fabric 服务端与 RCON，测试台在私有开发仓库，不随本仓分发。

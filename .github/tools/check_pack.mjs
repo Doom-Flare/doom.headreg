@@ -29,7 +29,9 @@ const ROOT = process.env.DOOM_ROOT ? path.resolve(process.env.DOOM_ROOT) : path.
 // 包体 = 仓库根：data/** 加上下面这几个顶层文件。
 //   （本仓的发行 zip 就是这个形状，多一个 .github/ dist/ docs/ 都不进包。）
 const PACK_TOP_FILES = ['pack.mcmeta', 'README.md', 'LICENSE', 'CHANGELOG.md'];
-const PACKS = [ROOT].filter((p) => fs.existsSync(path.join(p, 'pack.mcmeta')));
+// 两棵数据树：仓库根（主线 1.20.2 – 26.3）与 legacy/（无宏，1.19.4 – 1.20.1）。
+// legacy 树有自己的一份占位 pack.mcmeta（真正打包时由 build_variants 按版本重写）。
+const PACKS = [ROOT, path.join(ROOT, 'legacy')].filter((p) => fs.existsSync(path.join(p, 'pack.mcmeta')));
 
 // 跨包命名空间：引用它们时不做闭包检查（本仓内没有这些 data/<ns>/）
 const EXTERNAL = new Set([
@@ -120,14 +122,20 @@ for (const pack of PACKS) {
   console.log('  mcfunction ' + mcf.length + ' 个 · ' + lineN + ' 行已查');
 
   // ③ 引用闭包
+  // 目录单复数随版本：1.21+ 与 26.x 是 function/，1.20.x 及更早是 functions/。
+  // 这里按「包内实际存在的那个」判定，不写死 —— 同一份脚本要同时检两棵树。
   const fnRoot = path.join(pack, 'data');
-  const existsFn = (ns, p) => fs.existsSync(path.join(fnRoot, ns, 'function', p + '.mcfunction'));
+  const fnDirName = fs.existsSync(path.join(fnRoot, 'headreg', 'functions')) &&
+    !fs.existsSync(path.join(fnRoot, 'headreg', 'function')) ? 'functions' : 'function';
+  const existsFn = (ns, p) => fs.existsSync(path.join(fnRoot, ns, fnDirName, p + '.mcfunction'));
   const tagFiles = new Set();
   (function w(x, rel = '') {
     for (const e of fs.readdirSync(x, { withFileTypes: true })) {
       const q = path.join(x, e.name); const r2 = rel ? rel + '/' + e.name : e.name;
       if (e.isDirectory()) w(q, r2);
-      else if (r2.includes('tags/function/') && e.name.endsWith('.json')) tagFiles.add(r2.replace(/^[\w.]+\/tags\/function\//, '').replace(/\.json$/, ''));
+      else if (new RegExp('tags/' + fnDirName + '/').test(r2) && e.name.endsWith('.json')) {
+        tagFiles.add(r2.replace(new RegExp('^[\\w.]+/tags/' + fnDirName + '/'), '').replace(/\.json$/, ''));
+      }
     }
   })(fnRoot);
 

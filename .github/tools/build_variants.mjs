@@ -54,6 +54,24 @@ export function vcmp(a, b) {
  * patches   该类要打的补丁 id，与 since/until 的语义判定必须一致（构建时会断言）。
  */
 export const GROUPS = [
+  // ── legacy 数据树（无宏，1.19.4 – 1.20.1）────────────────────────────
+  // 这一档不是主线的降级变体，而是另一套用「字面分派表 + 固定中转槽」实现同样功能的代码，
+  // 放在仓库的 legacy/ 下。src 缺省为 '.'，这里显式指到 legacy。
+  // 三者数据树逐字节相同，只是 mcmeta 的 pack_format 不同（12 / 15 / 15）。
+  {
+    versions: ['1.19.4'],
+    pack: ['12', '12'],
+    style: 'plural',
+    src: 'legacy',
+    patches: [],
+  },
+  {
+    versions: ['1.20', '1.20.1'],
+    pack: ['15', '15'],
+    style: 'plural',
+    src: 'legacy',
+    patches: [],
+  },
   {
     versions: ['1.20.2'],
     pack: ['18', '18'],
@@ -289,8 +307,12 @@ const walk = (d, rel, out) => {
  *   ④ pack.mcmeta 按该类区间生成；README/CHANGELOG/LICENSE/USAGE 现读仓库根
  */
 export function variantFiles(group) {
-  const dataSrc = path.join(ROOT, 'data');
-  if (!fs.existsSync(dataSrc)) throw new Error('仓库根没有 data/：' + ROOT);
+  // src 缺省 '.' = 仓库根的主线数据树（1.20.2 – 26.3）；
+  // legacy = 无宏数据树（1.19.4 – 1.20.1），结构同为 <src>/data/**，但代码是另一套。
+  const srcRoot = path.join(ROOT, group.src || '.');
+  const isLegacy = srcRoot !== ROOT;
+  const dataSrc = path.join(srcRoot, 'data');
+  if (!fs.existsSync(dataSrc)) throw new Error('没有 data/：' + dataSrc);
 
   const files = new Map();
   for (const rel of walk(dataSrc, '', [])) {
@@ -316,14 +338,14 @@ export function variantFiles(group) {
   if (dirStyle(v0) !== style) {
     throw new Error('版本表自相矛盾：' + v0 + ' 的目录风格应为 ' + dirStyle(v0) + '，表里写 ' + style);
   }
-  const want = PATCHES.filter((p) => patchApplies(p, v0)).map((p) => p.id);
+  const want = isLegacy ? [] : PATCHES.filter((p) => patchApplies(p, v0)).map((p) => p.id);
   const declared = group.patches.slice().sort();
   if (want.slice().sort().join(',') !== declared.join(',')) {
     throw new Error('版本表自相矛盾：' + v0 + ' 应打 [' + want.join(', ') + ']，表里写 [' + declared.join(', ') + ']');
   }
   // 同类里每个版本必须打出同一组补丁，否则这个区间包就不该合成一个。
   for (const v of group.versions) {
-    const w = PATCHES.filter((p) => patchApplies(p, v)).map((p) => p.id).sort().join(',');
+    const w = isLegacy ? '' : PATCHES.filter((p) => patchApplies(p, v)).map((p) => p.id).sort().join(',');
     if (w !== declared.join(',')) {
       throw new Error('同类版本补丁不一致：' + v + ' 要 [' + w + ']，该类声明 [' + declared.join(',') + ']');
     }

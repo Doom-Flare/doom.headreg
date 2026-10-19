@@ -47,6 +47,8 @@ const SELF = ['.github/tools/check_leak.mjs'];
 // ② 顶层白名单
 const ALLOW = new Set(['README.md', 'LICENSE', 'CHANGELOG.md', '.gitignore', '.gitattributes',
   'pack.mcmeta', 'data', 'dist', 'docs', '.github',
+  // legacy 数据树（无宏，1.19.4 – 1.20.1）：源在 legacy/data，不进主线包，由 build_variants 打进独立区间包
+  'legacy',
   // 英文译本（与中文并列，不进发行包）
   'README.en.md', 'CHANGELOG.en.md']);
 // 二进制/生成物跳过文本扫描
