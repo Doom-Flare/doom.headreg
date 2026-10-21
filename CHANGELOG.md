@@ -50,10 +50,9 @@ legacy 树不受影响：那边没有 `boot` 概念，`list_one` / `query_id` �
 
 - **25 个版本逐个真机复测，全部 56/56（legacy 3 版 13/13）、0 条加载错误。** 每档都是「干净世界 → 装 `dist/` 对应区间包 → 起服 → 把链长强制归一到 65536 → `/reload` → `function headreg:test/run` → 轮询计分板到落定」：
   - 1.19.4 · 1.20 · 1.20.1 → 13/13（legacy 树）
-  - 1.20.2 – 1.21.10 共 19 版 → 56/56（旧 gamerule 名 `maxCommandChainLength`）
+  - 1.20.2 – 1.21.10 共 16 版 → 56/56（旧 gamerule 名 `maxCommandChainLength`）
   - 1.21.11 – 26.3 共 6 版 → 56/56（新 gamerule 名 `max_command_sequence_length`）
 - 强制链长归一化是这一轮的关键：26.3 的默认值就是 65536，此前失败的根因正是「单次自检约 8.5 万条 > 65536」，不是功能不兼容。分段改造后 26.3 在默认世界上直接 56/56。
-- 时区往返 utc → shanghai → utc → paris → los_angeles → utc，`root.10` 的三个日期字段与 history 全部跟随，回到 utc 后与基线逐字一致。
 - 时区往返 utc → shanghai → utc → paris → los_angeles → utc，`root.10` 的三个日期字段与 history 全部跟随，回到 utc 后与基线逐字一致。
 - `api/tz_set {tz:"nope"}` 早退不写 config；自定义 preset 写进 `headreg:tz` 后能跨 `/reload` 存活，也能被 `tz_set` 接受。
 
