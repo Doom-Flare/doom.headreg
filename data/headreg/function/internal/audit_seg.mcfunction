@@ -5,6 +5,6 @@ scoreboard players operation #d headreg.audit -= #a headreg.audit
 scoreboard players operation #e headreg.audit = #c headreg.audit
 scoreboard players operation #e headreg.audit -= #d headreg.audit
 execute unless score #e headreg.audit matches -1..1 run scoreboard players add #bad headreg.audit 1
-execute unless score #e headreg.audit matches -1..1 run tellraw @s [{"text":"[audit] ✗ 末段 dur_sec 与 (out_sec-in_sec) 不符","color":"red"}]
+execute unless score #e headreg.audit matches -1..1 run tellraw @s [{"translate":"headreg.audit.err.dur_mismatch","fallback":"[audit] ✗ 末段 dur_sec 与 (out_sec-in_sec) 不符","color":"red"}]
 execute unless score #d headreg.audit matches 1.. run scoreboard players add #bad headreg.audit 1
-execute unless score #d headreg.audit matches 1.. run tellraw @s [{"text":"[audit] ✗ 末段时长不是正数","color":"red"}]
+execute unless score #d headreg.audit matches 1.. run tellraw @s [{"translate":"headreg.audit.err.dur_not_positive","fallback":"[audit] ✗ 末段时长不是正数","color":"red"}]

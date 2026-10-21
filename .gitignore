@@ -1,5 +1,5 @@
 # 本地产物（不进仓库）——公开仓库顶层只允许 README.md / LICENSE / CHANGELOG.md
-#   / .gitignore / .gitattributes / pack.mcmeta / data/ / dist/ / docs/ / .github/
+#   / .gitignore / .gitattributes / pack.mcmeta / data/ / dist/ / docs/ / .github/ / legacy/ / resourcepack/
 *.log
 harness/
 /_work/

@@ -10,6 +10,7 @@ scoreboard players set #k48 headreg.calc 48
 scoreboard players set #k60 headreg.calc 60
 scoreboard players set #k64 headreg.calc 64
 # 日历换算用
+scoreboard players set #k7 headreg.calc 7
 scoreboard players set #k365 headreg.calc 365
 scoreboard players set #k366 headreg.calc 366
 scoreboard players set #k400 headreg.calc 400

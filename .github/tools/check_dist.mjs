@@ -15,19 +15,28 @@
 //   ④ manifest.json 与实际文件一致 —— 每个 zip 的存在、条目数、字节数、sha256 都要对得上。
 //      为什么：发版页和 README 的版本表是照 manifest 的，它错等于对外说错话。
 //
-// zip 的形态（与原产物一致）：仅文件条目、无目录条目、顶层前缀 doom.headreg/。
+// zip 的形态（与原产物一致）：仅文件条目、无目录条目。
+// 顶层前缀分两种：数据包 zip 带 doom.headreg/（解压后放 world/datapacks/ 的归档形态），
+// 配套资源包 zip 不带（玩家把 zip 直接丢进 resourcepacks/，客户端按空前缀取条目）。
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {
   ROOT, DIST, GROUPS, variantFiles, zipName, writeZip, readZip,
+  RESOURCE_PACK, resourcePackFiles,
 } from './build_variants.mjs';
 
 const WRITE = process.argv.includes('--write');
 const TOP = 'doom.headreg/';
 
 // 每个区间包 ↔ 它应得的内容（按版本表逐个算，不写死文件名）
-const PAIRS = GROUPS.map((g) => ({ zip: zipName(g), group: g }));
+const PAIRS = GROUPS.map((g) => ({ zip: zipName(g), group: g, top: TOP }));
+
+// 配套资源包：不是数据包变体，没有 group，单独给它一个「应得内容」入口。
+// top 取空串 —— 资源包 zip 的条目名不带前缀，见 build_variants.mjs 的 RESOURCE_PACK.zipTop。
+const RP = fs.existsSync(path.join(ROOT, RESOURCE_PACK.dir, 'pack.mcmeta'))
+  ? { zip: RESOURCE_PACK.zip, files: () => resourcePackFiles(), top: RESOURCE_PACK.zipTop }
+  : null;
 
 let errors = 0;
 const err = (msg) => { errors++; console.log('  ❌ ' + msg); };
@@ -36,9 +45,9 @@ if (WRITE) {
   // 重新打包：内容以仓库当前状态为准，再重算 manifest 与清单。
   fs.mkdirSync(DIST, { recursive: true });
   const clusters = [];
-  for (const { zip, group } of PAIRS) {
+  for (const { zip, group, top } of PAIRS) {
     const files = variantFiles(group);
-    writeZip(path.join(DIST, zip), files);
+    writeZip(path.join(DIST, zip), files, top);
     const buf = fs.readFileSync(path.join(DIST, zip));
     clusters.push({
       zip,
@@ -54,6 +63,24 @@ if (WRITE) {
     });
     console.log('  ✍ 重打 ' + zip + '（' + files.size + ' 条目）');
   }
+  if (RP) {
+    const files = RP.files();
+    writeZip(path.join(DIST, RP.zip), files, RP.top);
+    const buf = fs.readFileSync(path.join(DIST, RP.zip));
+    clusters.push({
+      zip: RP.zip,
+      from: GROUPS[0].versions[0],
+      to: GROUPS[GROUPS.length - 1].versions.slice(-1)[0],
+      versions: GROUPS.flatMap((g) => g.versions),
+      style: '-',
+      patches: [],
+      meta: JSON.parse(files.get('pack.mcmeta').toString('utf8')).pack,
+      entries: files.size,
+      bytes: buf.length,
+      sha256: crypto.createHash('sha256').update(buf).digest('hex'),
+    });
+    console.log('  ✍ 重打 ' + RP.zip + '（' + files.size + ' 条目）');
+  }
   fs.writeFileSync(path.join(DIST, 'manifest.json'),
     JSON.stringify({ at: new Date().toISOString(), clusters }, null, 2) + '\n');
   fs.writeFileSync(path.join(DIST, 'SHA256SUMS.txt'),
@@ -62,22 +89,29 @@ if (WRITE) {
 }
 
 console.log('=== ① zip 与应得内容逐字节一致 ===');
-for (const { zip, group } of PAIRS) {
+const ZIPS = [
+  ...PAIRS.map(({ zip, group, top }) => ({ zip, group, top, want: () => variantFiles(group) })),
+  ...(RP ? [{ zip: RP.zip, group: null, top: RP.top, want: RP.files }] : []),
+];
+for (const { zip, group, top, want: wantFn } of ZIPS) {
   const zipPath = path.join(DIST, zip);
   if (!fs.existsSync(zipPath)) { err('缺 ' + zip); continue; }
 
   const z = readZip(zipPath);
-  // zip 形态：只允许文件条目，且每个条目都带顶层前缀
+  // zip 形态：只允许文件条目；条目名必须严格是 top + 应得路径（数据包 top=doom.headreg/，资源包 top=''）
   const dirEntries = z.names.filter((n) => n.endsWith('/'));
   if (dirEntries.length) err(zip + ' 里有 ' + dirEntries.length + ' 个目录条目（应只有文件条目）');
   const inZip = new Map();
   for (const n of z.names) {
     if (n.endsWith('/')) continue;
-    if (!n.startsWith(TOP)) { err(zip + ' 有不带顶层前缀 ' + TOP + ' 的条目 ' + n); continue; }
-    inZip.set(n.slice(TOP.length), z.data(n));
+    if (!n.startsWith(top)) {
+      err(zip + ' 有不带' + (top ? '顶层前缀 ' + top : '（资源包不应带前缀）') + ' 的条目 ' + n);
+      continue;
+    }
+    inZip.set(n.slice(top.length), z.data(n));
   }
 
-  const want = variantFiles(group);
+  const want = wantFn();
   const missing = [...want.keys()].filter((f) => !inZip.has(f));
   const extra = [...inZip.keys()].filter((f) => !want.has(f));
   let diff = 0;
@@ -87,8 +121,10 @@ for (const { zip, group } of PAIRS) {
   if (missing.length) err(zip + ' 缺 ' + missing.length + ' 个文件: ' + missing.slice(0, 3).join(', '));
   if (extra.length) err(zip + ' 多 ' + extra.length + ' 个文件: ' + extra.slice(0, 3).join(', '));
   if (!missing.length && !extra.length && !diff && !dirEntries.length) {
-    console.log('  ✅ ' + zip + '（' + want.size + ' 文件逐字节一致，覆盖 ' +
-      group.versions.length + ' 个版本）');
+    const scope = group
+      ? '覆盖 ' + group.versions.length + ' 个版本'
+      : '配套资源包（4 个 locale）';
+    console.log('  ✅ ' + zip + '（' + want.size + ' 文件逐字节一致，' + scope + '）');
   }
 }
 
@@ -117,7 +153,7 @@ if (!fs.existsSync(sumsPath)) {
   if (notListed.length) err('这几个 zip 没列进 SHA256SUMS.txt: ' + notListed.join(', '));
   if (notFile.length) err('清单里这几行没有对应文件: ' + notFile.join(', '));
   // 反向也要管：dist/ 里不该躺着版本表之外的 zip（比如被取代的旧单版包）
-  const known = new Set(PAIRS.map((p) => p.zip));
+  const known = new Set(ZIPS.map((p) => p.zip));
   const stale = zips.filter((f) => !known.has(f));
   if (stale.length) err('dist/ 里有版本表之外的 zip（旧产物？）: ' + stale.join(', '));
   if (!notListed.length && !notFile.length && !stale.length) {
@@ -137,8 +173,10 @@ if (!fs.existsSync(manPath)) {
     err('manifest.json 没有 clusters 数组');
   } else {
     // 与版本表逐项对齐：顺序、zip 名、覆盖版本都要一模一样
-    if (clusters.length !== GROUPS.length) {
-      err('manifest 有 ' + clusters.length + ' 类，版本表有 ' + GROUPS.length + ' 类');
+    const wantClusters = GROUPS.length + (RP ? 1 : 0);
+    if (clusters.length !== wantClusters) {
+      err('manifest 有 ' + clusters.length + ' 类，应为 ' + wantClusters + ' 类（版本表 ' +
+        GROUPS.length + ' + 资源包 ' + (RP ? 1 : 0) + '）');
     }
     for (let i = 0; i < GROUPS.length; i++) {
       const g = GROUPS[i];

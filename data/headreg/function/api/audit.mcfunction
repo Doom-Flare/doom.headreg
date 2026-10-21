@@ -5,4 +5,4 @@
 data remove storage headreg:audit id
 execute store result storage headreg:audit id int 1 run scoreboard players get @s headreg.id
 execute if data storage headreg:audit id run function headreg:internal/audit_id with storage headreg:audit
-execute unless data storage headreg:audit id run tellraw @s [{"text":"[headreg] 你还没有档案，无从审计。","color":"red"}]
+execute unless data storage headreg:audit id run tellraw @s [{"translate":"headreg.api.audit.no_profile","fallback":"[headreg] 你还没有档案，无从审计。","color":"red"}]

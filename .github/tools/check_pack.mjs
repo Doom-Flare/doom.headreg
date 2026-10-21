@@ -29,9 +29,12 @@ const ROOT = process.env.DOOM_ROOT ? path.resolve(process.env.DOOM_ROOT) : path.
 // 包体 = 仓库根：data/** 加上下面这几个顶层文件。
 //   （本仓的发行 zip 就是这个形状，多一个 .github/ dist/ docs/ 都不进包。）
 const PACK_TOP_FILES = ['pack.mcmeta', 'README.md', 'LICENSE', 'CHANGELOG.md'];
-// 两棵数据树：仓库根（主线 1.20.2 – 26.3）与 legacy/（无宏，1.19.4 – 1.20.1）。
-// legacy 树有自己的一份占位 pack.mcmeta（真正打包时由 build_variants 按版本重写）。
-const PACKS = [ROOT, path.join(ROOT, 'legacy')].filter((p) => fs.existsSync(path.join(p, 'pack.mcmeta')));
+// 三棵包树：
+//   ROOT          主线数据包（1.20.2 – 26.3）
+//   legacy/       无宏数据树（1.19.4 – 1.20.1），占位 pack.mcmeta 由 build_variants 按版本重写
+//   resourcepack/ 配套资源包（只有 assets/，没有 data/），承载 en_us / fr_fr / es_es / zh_cn 译文
+const PACKS = [ROOT, path.join(ROOT, 'legacy'), path.join(ROOT, 'resourcepack')]
+  .filter((p) => fs.existsSync(path.join(p, 'pack.mcmeta')));
 
 // 跨包命名空间：引用它们时不做闭包检查（本仓内没有这些 data/<ns>/）
 const EXTERNAL = new Set([
@@ -56,8 +59,12 @@ const walk = (d, rel = '') => {
 const packFiles = (pack) => {
   const out = [];
   for (const f of PACK_TOP_FILES) if (fs.existsSync(path.join(pack, f))) out.push(f);
-  const dd = path.join(pack, 'data');
-  if (fs.existsSync(dd)) out.push(...walk(dd, 'data'));
+  // data/ 是数据包侧，assets/ 是资源包侧；两棵树都按同一条路径规则收进来，
+  // 这样资源包的 lang/*.json 会走同一套 ①JSON 可解析 检查，不需要另写一份。
+  for (const sub of ['data', 'assets']) {
+    const dd = path.join(pack, sub);
+    if (fs.existsSync(dd)) out.push(...walk(dd, sub));
+  }
   return out;
 };
 
@@ -125,11 +132,13 @@ for (const pack of PACKS) {
   // 目录单复数随版本：1.21+ 与 26.x 是 function/，1.20.x 及更早是 functions/。
   // 这里按「包内实际存在的那个」判定，不写死 —— 同一份脚本要同时检两棵树。
   const fnRoot = path.join(pack, 'data');
+  // 资源包没有 data/，函数引用闭包对它无意义 —— 下面两个 readdir 都加了存在性守卫。
   const fnDirName = fs.existsSync(path.join(fnRoot, 'headreg', 'functions')) &&
     !fs.existsSync(path.join(fnRoot, 'headreg', 'function')) ? 'functions' : 'function';
   const existsFn = (ns, p) => fs.existsSync(path.join(fnRoot, ns, fnDirName, p + '.mcfunction'));
   const tagFiles = new Set();
   (function w(x, rel = '') {
+    if (!fs.existsSync(x)) return;
     for (const e of fs.readdirSync(x, { withFileTypes: true })) {
       const q = path.join(x, e.name); const r2 = rel ? rel + '/' + e.name : e.name;
       if (e.isDirectory()) w(q, r2);

@@ -39,6 +39,6 @@ scoreboard players operation #au_d headreg.calc -= #au_a headreg.calc
 scoreboard players operation #au_e headreg.calc = #au_c headreg.calc
 scoreboard players operation #au_e headreg.calc -= #au_d headreg.calc
 execute unless score #au_e headreg.calc matches -1..1 run scoreboard players add #au_bad headreg.calc 1
-execute unless score #au_e headreg.calc matches -1..1 run tellraw @s [{"text":"[audit] ✗ 某段 dur_sec 与 (out_sec-in_sec) 不符","color":"red"}]
+execute unless score #au_e headreg.calc matches -1..1 run tellraw @s [{"translate":"headreg.audit.err.dur_mismatch_v2","fallback":"[audit] ✗ 某段 dur_sec 与 (out_sec-in_sec) 不符","color":"red"}]
 execute unless score #au_d headreg.calc matches 1.. run scoreboard players add #au_bad headreg.calc 1
-execute unless score #au_d headreg.calc matches 1.. run tellraw @s [{"text":"[audit] ✗ 某段时长不是正数","color":"red"}]
+execute unless score #au_d headreg.calc matches 1.. run tellraw @s [{"translate":"headreg.audit.err.dur_not_positive_v2","fallback":"[audit] ✗ 某段时长不是正数","color":"red"}]

@@ -15,6 +15,7 @@ scoreboard players enable @a headreg.query
 scoreboard players enable @a headreg.qlist
 function headreg:internal/lut_init
 function headreg:internal/lut_time
+function headreg:internal/tz_defaults
 execute in minecraft:overworld unless entity @e[type=minecraft:item_display,tag=headreg.display,limit=1] run function headreg:internal/ensure_display
 # forceload 提交后区块要到下一 tick 才真正加载，故补一次延迟重试。
 # 重试带预算（#k_retry = 200，约 10 秒）：超时就大声报错并停手，绝不无限空转。

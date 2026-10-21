@@ -1,8 +1,13 @@
-# headreg:internal/render_date —— epoch 秒 -> 可读日期字符串（UTC）
+# headreg:internal/render_date —— epoch 秒 -> 可读日期字符串（按 config.tz 的时区）
 # 入口：#ts = epoch 秒（int32 安全）
 # 出口：storage headreg:tmp date = "YYYY-MM-DD HH:MM:SS"
 # 说明：只做渲染，不读也不写任何归档字段，供 format_time / format_now / format_leave 共用。
-scoreboard players operation #t headreg.calc = #ts headreg.calc
+#       时区由 tz_apply 解析：偏移只叠进本函数私有量 #tso，#ts 原样不动（clock_anchor 依赖它）。
+#       未配置时区时 #tzef = 0、#tso == #ts，输出与纯 UTC 渲染逐字节一致。
+function headreg:internal/tz_apply
+# 绝对下限护栏：#tso 不得为负，否则除法会落到 1969 年
+execute if score #tso headreg.calc matches ..0 run scoreboard players set #tso headreg.calc 0
+scoreboard players operation #t headreg.calc = #tso headreg.calc
 scoreboard players operation #t headreg.calc %= #k86400 headreg.calc
 scoreboard players operation #h headreg.calc = #t headreg.calc
 scoreboard players operation #h headreg.calc /= #k3600 headreg.calc
@@ -12,7 +17,7 @@ scoreboard players operation #mi headreg.calc /= #k60 headreg.calc
 scoreboard players operation #s headreg.calc = #t headreg.calc
 scoreboard players operation #s headreg.calc %= #k60 headreg.calc
 
-scoreboard players operation #days headreg.calc = #ts headreg.calc
+scoreboard players operation #days headreg.calc = #tso headreg.calc
 scoreboard players operation #days headreg.calc /= #k86400 headreg.calc
 scoreboard players set #year headreg.calc 1970
 function headreg:internal/sub_year

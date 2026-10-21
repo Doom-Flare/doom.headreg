@@ -8,7 +8,7 @@ execute unless entity @s[type=minecraft:player] run scoreboard players set #vabo
 execute if score #vabort headreg.calc matches 0 unless score @s headreg.id matches 1.. run scoreboard players set #vabort headreg.calc 1
 execute if score #vabort headreg.calc matches 0 run scoreboard players set #au_bad headreg.calc 0
 execute if score #vabort headreg.calc matches 0 run scoreboard players set #au_n headreg.calc 0
-execute if score #vabort headreg.calc matches 1 run tellraw @s [{"text":"[headreg] 你还没有档案，无从审计。","color":"red"}]
+execute if score #vabort headreg.calc matches 1 run tellraw @s [{"translate":"headreg.api.audit.no_profile","fallback":"[headreg] 你还没有档案，无从审计。","color":"red"}]
 execute if score #vabort headreg.calc matches 0 run scoreboard players operation #qid headreg.calc = @s headreg.id
 execute if score #vabort headreg.calc matches 0 run function headreg:internal/audit_id
 data remove storage headreg:tmp cur

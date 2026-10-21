@@ -13,7 +13,8 @@
 //      当时一次 `git add -A` 把 9 个垃圾文件混进了 doom.nats 仓库。从此顶层结构也过门。
 //
 //   顶层允许：README.md · LICENSE · CHANGELOG.md · .gitignore · .gitattributes
-//            · pack.mcmeta · data/ · dist/ · docs/ · .github/
+//            · pack.mcmeta · data/ · dist/ · docs/ · .github/ · legacy/
+//            · resourcepack/（配套资源包）· README.en.md · CHANGELOG.en.md
 //   未跟踪但躺在工作目录里的可疑条目：只警告（下一次 `git add -A` 就会被带进仓库）。
 //
 // 为什么放在 .github/tools/ 而不是 src/tools/：
@@ -50,7 +51,9 @@ const ALLOW = new Set(['README.md', 'LICENSE', 'CHANGELOG.md', '.gitignore', '.g
   // legacy 数据树（无宏，1.19.4 – 1.20.1）：源在 legacy/data，不进主线包，由 build_variants 打进独立区间包
   'legacy',
   // 英文译本（与中文并列，不进发行包）
-  'README.en.md', 'CHANGELOG.en.md']);
+  'README.en.md', 'CHANGELOG.en.md',
+  // 配套资源包（只有 assets/，独立打包，不进数据包 zip）
+  'resourcepack']);
 // 二进制/生成物跳过文本扫描
 const SKIP_EXT = /\.(zip|png|jpg|jpeg|gif|webp|ico|pdf|jar|dat|mca)$/i;
 

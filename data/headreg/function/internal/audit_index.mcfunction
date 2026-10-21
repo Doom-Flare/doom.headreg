@@ -3,4 +3,4 @@
 scoreboard players set #g headreg.audit 0
 $execute store result score #g headreg.audit run data get storage headreg:index $(name)
 execute unless score #g headreg.audit = #id headreg.audit run scoreboard players add #bad headreg.audit 1
-execute unless score #g headreg.audit = #id headreg.audit run tellraw @s [{"text":"[audit] ✗ 索引与档案不一致（index 查不到该名字或回指别的 id）","color":"red"}]
+execute unless score #g headreg.audit = #id headreg.audit run tellraw @s [{"translate":"headreg.audit.err.index_mismatch","fallback":"[audit] ✗ 索引与档案不一致（index 查不到该名字或回指别的 id）","color":"red"}]

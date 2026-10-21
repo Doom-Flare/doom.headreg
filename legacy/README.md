@@ -109,7 +109,7 @@ node legacy/build/gen.mjs
 
 # 仓库内三道静态门（不需要 Minecraft）
 node .github/tools/check_pack.mjs    # 函数引用闭包（同时扫主线树与 legacy 树）
-node .github/tools/check_dist.mjs    # 7 个区间包各自与源树逐字节一致
+node .github/tools/check_dist.mjs    # 8 个区间包各自与源树逐字节一致
 ```
 
 包内自断言套件：`function headreg:test/run`，13 条断言。

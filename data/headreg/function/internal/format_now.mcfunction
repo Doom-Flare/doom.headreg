@@ -1,4 +1,4 @@
-# headreg:internal/format_now —— 渲染「现在」的 UTC 时间
+# headreg:internal/format_now —— 渲染「现在」的本地时间（按 config.tz 的时区）
 # 入口：storage headreg:clock 已锚定
 # 出口：root.working_data.now_date_str（未锚定时为 "-"）
 data remove storage headreg:data root.working_data.now_date_str

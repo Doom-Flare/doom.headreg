@@ -232,4 +232,4 @@ data remove storage headreg:tmp seg
 data remove storage headreg:tmp fmt
 
 # ---------- 报告 ----------
-tellraw @a [{"text":"[headreg:test] ","color":"gray"},{"text":"通过 ","color":"green"},{"score":{"name":"#pass","objective":"headreg.test"},"color":"green"},{"text":" / 调用 ","color":"gray"},{"score":{"name":"#calls","objective":"headreg.test"}},{"text":" failAt=","color":"dark_red"},{"score":{"name":"#failAt","objective":"headreg.test"},"color":"dark_red"},{"text":" / 失败 ","color":"red"},{"score":{"name":"#fail","objective":"headreg.test"},"color":"red"}]
+tellraw @a [{"text":"[headreg:test] ","color":"gray"},{"translate":"headreg.test.pass_prefix","fallback":"通过 ","color":"green"},{"score":{"name":"#pass","objective":"headreg.test"},"color":"green"},{"translate":"headreg.test.mid","fallback":" / 调用 ","color":"gray"},{"score":{"name":"#calls","objective":"headreg.test"}},{"text":" failAt=","color":"dark_red"},{"score":{"name":"#failAt","objective":"headreg.test"},"color":"dark_red"},{"translate":"headreg.test.fail_prefix","fallback":" / 失败 ","color":"red"},{"score":{"name":"#fail","objective":"headreg.test"},"color":"red"}]

@@ -1,0 +1,18 @@
+{
+  "pack": {
+    "pack_format": 13,
+    "supported_formats": {
+      "min_inclusive": 13,
+      "max_inclusive": 97
+    },
+    "min_format": [
+      13,
+      0
+    ],
+    "max_format": [
+      97,
+      1
+    ],
+    "description": "doom.headreg 配套资源包 —— 英文 / 法文 / 西班牙文 / 简中 界面文案。安装后才会显示对应语言；不安装则显示数据包内建的中文 fallback。"
+  }
+}

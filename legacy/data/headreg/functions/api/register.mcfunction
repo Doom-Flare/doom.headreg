@@ -14,7 +14,7 @@ execute unless entity @s[type=minecraft:player] run scoreboard players set #abor
 #    上界写 1023 而不是 assign_id 注释里的 1024：分桶是 0..15 × 0..63，只覆盖 1..1023，
 #    id=1024 会算成 16 号桶（不存在）而静默写不进去，宁可在门口拒绝。
 execute if score #abort headreg.calc matches 0 unless score @s headreg.id matches 1.. run function headreg:internal/assign_id
-execute if score #abort headreg.calc matches 0 unless score @s headreg.id matches 1..1023 run tellraw @s [{"text":"[headreg] ","color":"dark_gray"},{"text":"编号已用尽（上限 1023），本次不登记。","color":"red"}]
+execute if score #abort headreg.calc matches 0 unless score @s headreg.id matches 1..1023 run tellraw @s [{"text":"[headreg] ","color":"dark_gray"},{"translate":"headreg.register.id_exhausted","fallback":"编号已用尽（上限 1023），本次不登记。","color":"red"}]
 execute if score #abort headreg.calc matches 0 unless score @s headreg.id matches 1..1023 run scoreboard players set @s headreg.id 0
 execute if score #abort headreg.calc matches 0 unless score @s headreg.id matches 1..1023 run scoreboard players set #abort headreg.calc 1
 

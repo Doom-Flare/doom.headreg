@@ -6,10 +6,10 @@
 # 注意：list_scan 是递归实现，每份记录约 70 条命令；默认 gamerule maxCommandChainLength=65536，
 #       因此满表（1023 份）会超出命令链上限而中途截断。要一次列全请先
 #       /gamerule maxCommandChainLength 200000，或直接按编号查 api/query_id。
-tellraw @s [{"text":"[headreg] ","color":"gray"},{"text":"已登记玩家：","color":"white"}]
+tellraw @s [{"text":"[headreg] ","color":"gray"},{"translate":"headreg.api.list.header","fallback":"已登记玩家：","color":"white"}]
 scoreboard players set #li headreg.calc 1
 scoreboard players set #cnt headreg.calc 0
 scoreboard players operation #init headreg.calc = #init headreg.next
 function headreg:internal/list_scan
-tellraw @s [{"text":"[headreg] ","color":"gray"},{"text":"共 ","color":"gray"},{"score":{"name":"#cnt","objective":"headreg.calc"},"color":"white"},{"text":" 份记录","color":"gray"}]
+tellraw @s [{"text":"[headreg] ","color":"gray"},{"translate":"headreg.list.total_prefix","fallback":"共 ","color":"gray"},{"score":{"name":"#cnt","objective":"headreg.calc"},"color":"white"},{"translate":"headreg.list.total_suffix","fallback":" 份记录","color":"gray"}]
 data remove storage headreg:tmp cur

@@ -1,11 +1,13 @@
-// .github/tools/build_variants.mjs —— 由仓库自身的 data/ 产出 5 个区间包。
+// .github/tools/build_variants.mjs —— 由仓库自身的 data/ 与 legacy/ 产出 7 个区间包。
 //
-//   node .github/tools/build_variants.mjs           # 写 dist/ 下 5 个 zip + manifest.json + SHA256SUMS.txt
+//   node .github/tools/build_variants.mjs           # 写 dist/ 下 7 个 zip + manifest.json + SHA256SUMS.txt
 //   node .github/tools/build_variants.mjs --dry     # 只算不写
 //   DOOM_ROOT=<仓库> node .github/tools/build_variants.mjs    # 对另一个克隆构建
 //
 // 输入只有仓库自己：根 data/ 是 1.21–26.2 那一类数据树；根 pack.mcmeta 提供描述文字；
 // 根 README.md / LICENSE / CHANGELOG.md / docs/USAGE.md 原样进包。
+// 另把 resourcepack/ 单独打成一个配套资源包（只有 assets/，不进任何数据包 zip）；
+// 数据包 zip 带 doom.headreg/ 顶层前缀供解压，资源包 zip 不带前缀供直接加载。
 // 每次运行都现读磁盘，不内联、不缓存 —— 文档改了重跑一次就进包。
 //
 // 变换只有这一份实现：check_dist.mjs 直接 import 本文件的 variantFiles() 算「应得内容」。
@@ -44,7 +46,7 @@ export function vcmp(a, b) {
 }
 
 /**
- * 22 个实测版本按「数据树逐字节相同」分 5 类。
+ * 25 个实测版本按「数据树逐字节相同」分 7 类（主线 5 类 + legacy 2 类）。
  *
  * versions  该类的 MC 版本列表，顺序即首版 → 末版；首末两个版本的名字同时决定
  *           zip 命名与 mcmeta 区间（单版类 min = max）。
@@ -115,6 +117,27 @@ export function parseFormat(pack) {
 
 /** 包内顶层文件（每次构建现读仓库根）。 */
 export const PACK_TOP_FILES = ['pack.mcmeta', 'README.md', 'LICENSE', 'CHANGELOG.md', 'docs/USAGE.md'];
+
+/**
+ * 配套资源包。它不是数据包变体：资源包 format 与数据包 format 是两套编号
+ * （1.21.11：资源 75.0 / 数据 94.1），所以不能复用 GROUPS 的 pack 字段，
+ * 而由 resourcepack/pack.mcmeta 自己声明区间，构建时原样带走。
+ *
+ * 为什么要单独一个包：数据包只能进 world/datapacks/，客户端翻译表只读资源包里的
+ * assets/<ns>/lang/*.json —— 数据包自己的 assets/ 对客户端零贡献（PackResourceMetadata
+ * 没有 data→assets 的桥）。想让英文玩家看到英文，必须有这个包。
+ *
+ * zipTop 为空串：资源包是「玩家把 zip 直接丢进 resourcepacks/」的形态，条目名不能再套
+ * 一层目录。1.21.11 的 PackDetector(zip 分支) 给 ZipPackResources 的前缀恒为 ""，
+ * 且 getEntry() 是精确匹配 —— 条目写成 doom.headreg/pack.mcmeta 就取不到元数据。
+ * 数据包相反，那是「解压后放目录」的归档形态，保持 ZIP_TOP 前缀。
+ */
+export const RESOURCE_PACK = {
+  dir: 'resourcepack',
+  zip: 'doom.headreg-resourcepack.zip',
+  top: ['pack.mcmeta', 'README.md'],
+  zipTop: '',
+};
 
 /* ------------------------------------------------------------------ *
  * 二、目录单复数
@@ -318,6 +341,15 @@ export function variantFiles(group) {
   for (const rel of walk(dataSrc, '', [])) {
     files.set('data/' + rel, fs.readFileSync(path.join(dataSrc, rel)));
   }
+  // 命名空间级 assets/（与 data/ 同级）也进包：它是数据包侧的资源命名空间，
+  // 客户端不读它，但 datapack 里带 assets/ 是合法形态，且 DnT-i18n、GM4 等真实项目都这么做。
+  // 真正的语言文件在 resourcepack/ 那个独立包里，这里只保证「仓库里有 assets/ 不会掉出包」。
+  const assetsSrc = path.join(srcRoot, 'assets');
+  if (fs.existsSync(assetsSrc)) {
+    for (const rel of walk(assetsSrc, '', [])) {
+      files.set('assets/' + rel, fs.readFileSync(path.join(assetsSrc, rel)));
+    }
+  }
 
   const style = group.style;
   if (style === 'plural') {
@@ -366,6 +398,28 @@ export function variantFiles(group) {
   return files;
 }
 
+/**
+ * 配套资源包的内容。它只有 assets/ 与一个自带区间的 pack.mcmeta，
+ * 不打任何版本补丁、不改目录单复数 —— 资源包的 lang 路径与版本无关。
+ */
+export function resourcePackFiles() {
+  const base = path.join(ROOT, RESOURCE_PACK.dir);
+  if (!fs.existsSync(path.join(base, 'pack.mcmeta'))) {
+    throw new Error('没有 ' + RESOURCE_PACK.dir + '/pack.mcmeta');
+  }
+  const files = new Map();
+  for (const rel of walk(path.join(base, 'assets'), '', [])) {
+    files.set('assets/' + rel, fs.readFileSync(path.join(base, 'assets', rel)));
+  }
+  files.set('pack.mcmeta', fs.readFileSync(path.join(base, 'pack.mcmeta')));
+  for (const f of RESOURCE_PACK.top) {
+    if (f === 'pack.mcmeta') continue;
+    const p = path.join(base, f);
+    if (fs.existsSync(p)) files.set(f, fs.readFileSync(p));
+  }
+  return files;
+}
+
 /** 区间包命名：单版 <ver>，多版 <首版>-<尾版>。 */
 export function zipName(group) {
   const first = group.versions[0];
@@ -399,18 +453,20 @@ const DOS_DATE = (1 << 5) | 1;
 const ZIP_TOP = 'doom.headreg/';
 
 /**
- * 写 zip：只有文件条目、无目录条目、顶层前缀 doom.headreg/、
- * 条目按路径字典序、文件名带 UTF-8 标志位 0x0800。
+ * 写 zip：只有文件条目、无目录条目、条目按路径字典序、文件名带 UTF-8 标志位 0x0800。
  * 压缩用 deflateRaw，压不小就 store（与原产物同一策略）。
+ *
+ * top 是条目名的顶层前缀：数据包用 ZIP_TOP（解压后放目录的归档形态），
+ * 资源包传 ''（zip 直接被客户端当包读，见 RESOURCE_PACK.zipTop 的说明）。
  */
-export function writeZip(zipPath, files) {
+export function writeZip(zipPath, files, top = ZIP_TOP) {
   const names = [...files.keys()].sort();
   const chunks = [];
   const central = [];
   let off = 0;
   for (const name of names) {
     const raw = files.get(name);
-    const nb = Buffer.from(ZIP_TOP + name, 'utf8');
+    const nb = Buffer.from(top + name, 'utf8');
     const def = zlib.deflateRawSync(raw, { level: 9 });
     const store = def.length >= raw.length;
     const data = store ? raw : def;
@@ -524,6 +580,27 @@ export function buildAll({ write = true } = {}) {
       versions: g.versions,
       style: g.style,
       patches: g.patches,
+      meta,
+      entries: files.size,
+      bytes: buf ? buf.length : 0,
+      sha256: buf ? sha256(buf) : '',
+    });
+  }
+  // 配套资源包：单独一个 cluster，from/to 用「所覆盖的 MC 区间」而非数据包 format 区间。
+  // 不进 GROUPS —— 它不是数据包变体，check_dist 的版本表对齐逻辑不该把它当变体。
+  if (fs.existsSync(path.join(ROOT, RESOURCE_PACK.dir, 'pack.mcmeta'))) {
+    const files = resourcePackFiles();
+    const p = path.join(DIST, RESOURCE_PACK.zip);
+    if (write) writeZip(p, files, RESOURCE_PACK.zipTop);
+    const buf = write ? fs.readFileSync(p) : null;
+    const meta = JSON.parse(files.get('pack.mcmeta').toString('utf8')).pack;
+    clusters.push({
+      zip: RESOURCE_PACK.zip,
+      from: GROUPS[0].versions[0],
+      to: GROUPS[GROUPS.length - 1].versions.slice(-1)[0],
+      versions: GROUPS.flatMap((g) => g.versions),
+      style: '-',
+      patches: [],
       meta,
       entries: files.size,
       bytes: buf ? buf.length : 0,
