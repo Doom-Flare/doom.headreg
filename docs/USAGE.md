@@ -16,7 +16,9 @@
 1. 把对应版本的 `doom.headreg` 文件夹放进 `<服务器目录>/world/datapacks/`。
 2. 服务器里执行 `/reload`（或重启服务器）。
 3. 确认装好了：敲 `/function headreg:api/list`，应回一行 `[headreg] 已登记玩家：`（装失败会刷红字报错，成功时不吭声）。
-4. 想更彻底地自检，跑 `/function headreg:test/run`，主线包看到 `56/56`、legacy 包看到 `13/13` 全过即可。
+4. 想更彻底地自检，跑 `/function headreg:test/run`，主线包看到 `56/56`、legacy 包看到 `13/13` 全过即可。主线套件分 5 段、段间隔 1 tick 续跑，`/function` 之后约 5 tick 才出报告。
+   > 判据读计分板 `#calls` / `#pass` / `#fail headreg.test`（套件用 `tellraw` 上报，不进服务器日志；RCON 只会回 `Running function …`）。
+   > 套件本身要 8.5 万条命令，超过默认的 `max_command_sequence_length`（65536），所以才拆成 5 段。**不要**为了跑自检去改链长上限。
 
 > 只装数据包，不用改 `server.properties`。正版检测在 `online-mode=true` 才有意义（下面会讲）。
 
@@ -49,7 +51,7 @@
 | `/function headreg:api/query_name {name:"Doom_Flare"}` | 按名字查 |
 | `/function headreg:api/clear` | 清掉**执行者自己**的登记记录（编号保留，不会重排） |
 | `/function headreg:api/audit` | 自查：7 项一致性检查，正常就一行绿字，有问题逐条红字列出来 |
-| `/function headreg:test/run` | 跑包内自带的测试（主线 56 个 / legacy 13 个） |
+| `/function headreg:test/run` | 跑包内自带的测试（主线 56 个，分 5 段约 5 tick 跑完；legacy 13 个，一次跑完） |
 
 `query_id` / `query_name` 是宏函数，要带参数调用，直接在命令里写 `{id:10}` 或 `{name:"Doom_Flare"}`。
 

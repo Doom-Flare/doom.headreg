@@ -2,10 +2,11 @@
 
 > **口径**：namespace `headreg`（玩家上线档案：自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与历史）。
 > 实测支持 **25 个 MC 版本（1.19.4 – 26.3）**，按数据树分 7 类，`dist/` 里每类一个区间包（映射表见 README「版本支持」）。
-> 主线（22 版，按数据树分 5 类）的包无依赖；自断言 `headreg:test/run`（**56 个用例**）+ 只读自检 `headreg:api/audit`（7 项）。
+> 主线（22 版，按数据树分 5 类）的包无依赖；自断言 `headreg:test/run`（**56 个用例**，分 5 段跨 tick 跑）+ 只读自检 `headreg:api/audit`（7 项）。
 > legacy 树（3 版：1.19.4 / 1.20 / 1.20.1）是**独立实现**，自断言 13 个用例，能力上限见 README「版本支持」。
 > 判定**必须**读计分板 `#pass/#fail/#calls headreg.test`（套件用 tellraw 上报，不进服务端日志）。
-> 下方各版本条目里的 **37 / 77** 是当时的实测数字，不是当前树 —— v1.0.3 起主线是 **56 条断言 / 96 个函数**。
+> 套件分 5 段、段间 `schedule … 1t` 续跑，`/function` 之后要等约 5 tick（0.25 秒）才出结果；切勿在 5 tick 内就下结论。
+> 下方各版本条目里的 **37 / 77** 是当时的实测数字，不是当前树 —— v1.0.3 起主线是 **56 条断言 / 100 个函数**。
 >
 > ✅ **2026-10-18 起主线 37/37，2026-10-21 扩到 56/56；2026-10-19 起 legacy 13/13 全绿**，并在 25 个 MC 版本上逐版复跑。
 
@@ -29,6 +30,7 @@
 ### 工程
 
 - **宏观命令链上限催生的分帧重渲染**：单条满历史档案重渲染 ≈ 23 次 `render_date` ≈ 2.5 万条命令，而 `maxCommandChainLength` 是 65536。同步扫全表会在第 3 条记录处被静默截断，所以 `tz_refresh_all` 改用 `schedule … 1t replace` 每 tick 推进一条。
+- **自检套件也撞上了同一条上限**：56 条断言里 30 条要调 `render_date`，单次约 2689 条命令，合计约 8.5 万条 —— 超过 65536 就会被 `Command execution stopped due to limit` 静默截断（26.3 首次暴露）。`test/run` 因此按「每段 ≤ 10 次渲染」拆成 `run` / `run_core` / `run_clock` / `run_tz` / `run_tz_dst` 五段，段间 `schedule … 1t replace` 续跑，每段 2–3 万条。计数 `#calls/#pass/#fail` 跨段累加，报告只在最后一段出一次。
 - **`tz_apply` 不改调用方的 `#ts`**：偏移只叠进私有量 `#tso`。`clock_anchor` 依赖 `#ts` 的原值，一旦被改，时钟锚定会整体漂移。
 - **未锚定时不判 DST**：`#sec = 0` 时 `tz_apply` 的两道护栏会把偏移压成 0，`api/tz` 因此拆成「未锚定」与「已锚定」两条路径，未锚定时显示待判定而不是假 0 秒。
 - `apply.mjs` 把 `data` 与 `legacy/data` 下 28 个文件里的中文 `text` 字面量机械替换成 `translate` 组件，`--check` 与 `--revert` 双向可逆。
@@ -46,7 +48,12 @@ legacy 树不受影响：那边没有 `boot` 概念，`list_one` / `query_id` �
 
 ### 真机验证
 
-- 1.21.11 实测 `#calls 56 / #pass 56 / #fail 0`，加载期 0 条错误。
+- **25 个版本逐个真机复测，全部 56/56（legacy 3 版 13/13）、0 条加载错误。** 每档都是「干净世界 → 装 `dist/` 对应区间包 → 起服 → 把链长强制归一到 65536 → `/reload` → `function headreg:test/run` → 轮询计分板到落定」：
+  - 1.19.4 · 1.20 · 1.20.1 → 13/13（legacy 树）
+  - 1.20.2 – 1.21.10 共 19 版 → 56/56（旧 gamerule 名 `maxCommandChainLength`）
+  - 1.21.11 – 26.3 共 6 版 → 56/56（新 gamerule 名 `max_command_sequence_length`）
+- 强制链长归一化是这一轮的关键：26.3 的默认值就是 65536，此前失败的根因正是「单次自检约 8.5 万条 > 65536」，不是功能不兼容。分段改造后 26.3 在默认世界上直接 56/56。
+- 时区往返 utc → shanghai → utc → paris → los_angeles → utc，`root.10` 的三个日期字段与 history 全部跟随，回到 utc 后与基线逐字一致。
 - 时区往返 utc → shanghai → utc → paris → los_angeles → utc，`root.10` 的三个日期字段与 history 全部跟随，回到 utc 后与基线逐字一致。
 - `api/tz_set {tz:"nope"}` 早退不写 config；自定义 preset 写进 `headreg:tz` 后能跨 `/reload` 存活，也能被 `tz_set` 接受。
 

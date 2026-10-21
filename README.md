@@ -16,7 +16,7 @@
 1. 按你的服务器版本取 `dist/` 里对应的区间包（见下方「版本支持」表），解压后把整个 `doom.headreg/` 放进 `world/datapacks/`
 2. 执行 `/reload`（或重启服务器）
 3. 确认：`/function headreg:api/list` 应回一行 `[headreg] 已登记玩家：`（装载失败会刷红字，成功时不提示）
-4. 自检：`/function headreg:test/run` → 主线包看到 `56/56`、legacy 包看到 `13/13` 即正常
+4. 自检：`/function headreg:test/run` → 主线包看到 `56/56`、legacy 包看到 `13/13` 即正常（主线分 5 段跑，等约 5 tick 再读数）
 
 下载后核对：`dist/SHA256SUMS.txt`（release 里同名附件）列出的是**每个区间包**的校验值，不是解压后的文件。
 
@@ -25,6 +25,8 @@
 ## 版本支持
 
 25 个版本逐个真机跑过（起服 → 部署 → `/reload` → 逐个点名全部函数 → 跑包内断言）。下表就是实测边界，**没有「理论上应该可以」的行**。
+
+最近一轮（v1.0.3 分段改造之后）的复测口径：干净世界 → 装 `dist/` 对应区间包 → 起服 → 把 `maxCommandChainLength` / `max_command_sequence_length` 强制归一到 **65536**（各版本默认值）→ `/reload` → `function headreg:test/run` → 轮询计分板到落定。25 档全部 **56/56（legacy 13/13）· 0 条加载错误**。
 
 | 取哪个包 | MC 版本 | `pack_format` |
 |---|---|---|
@@ -200,7 +202,7 @@ dist/doom.headreg-resourcepack.zip
 doom.headreg/
 ├── pack.mcmeta              # supported_formats 48–107.1（1.21 – 26.2）
 ├── data/
-│   ├── headreg/function/    # 96 个 mcfunction（api / internal / test）
+│   ├── headreg/function/    # 100 个 mcfunction（api / internal / test）
 │   └── minecraft/tags/function/{load,tick}.json
 ├── legacy/                  # 1.19.4 – 1.20.1 独立实现（100 个 mcfunction，无宏无 return）
 │   │   data/ · build/gen.mjs · README.md

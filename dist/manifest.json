@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-21T16:22:40.877Z",
+  "at": "2026-10-21T17:21:17.824Z",
   "clusters": [
     {
       "zip": "doom.headreg-1.19.4.zip",
@@ -27,8 +27,8 @@
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
       "entries": 108,
-      "bytes": 106594,
-      "sha256": "f2cef25ee041d4ab83a42d456e20efb917e2bd8fd54eb82ad877e32f88184cda"
+      "bytes": 107676,
+      "sha256": "f7039f3494254985f921989faeae41a6eb71d5fde3dc92b2321f8b616700da1f"
     },
     {
       "zip": "doom.headreg-1.20-1.20.1.zip",
@@ -57,8 +57,8 @@
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
       "entries": 108,
-      "bytes": 106595,
-      "sha256": "27dc79d81deabc6ab88e02d0f51a49bad85aaacb0db550e0fa63d5321869f241"
+      "bytes": 107677,
+      "sha256": "395467dbc1077b79f662b39283726bdd072843b07c47e9eaf746716e8851d9bd"
     },
     {
       "zip": "doom.headreg-1.20.2.zip",
@@ -88,9 +88,9 @@
         ],
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
-      "entries": 104,
-      "bytes": 102114,
-      "sha256": "557726df42b5ab6cd719b8aac63d6c72f26047552daffc04bbd411d196523cd1"
+      "entries": 108,
+      "bytes": 106384,
+      "sha256": "48032443ef7d51801a38e54aef5265196c81091091bedbc9e86c05b998407d54"
     },
     {
       "zip": "doom.headreg-1.20.3-1.20.4.zip",
@@ -120,9 +120,9 @@
         ],
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
-      "entries": 104,
-      "bytes": 102108,
-      "sha256": "fb93ee77843d3f1f2d392e78d7691efa8311553340eeb8b2fdc4a8ba7fb6b463"
+      "entries": 108,
+      "bytes": 106378,
+      "sha256": "98df7be70975d13dbafa7987a540a3ca1f2766db226fbc30e333ef6511003092"
     },
     {
       "zip": "doom.headreg-1.20.5-1.20.6.zip",
@@ -150,9 +150,9 @@
         ],
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
-      "entries": 103,
-      "bytes": 101598,
-      "sha256": "97eb0ebbd08293e3033d72532cb77588b9ed2d7721c7ebf01f4ce12a465f6a75"
+      "entries": 107,
+      "bytes": 105868,
+      "sha256": "6f84e30aec6729375b53c1bbbb940a707dc0ebc59f6d6e4af0adf79c92fc52af"
     },
     {
       "zip": "doom.headreg-1.21-26.2.zip",
@@ -194,9 +194,9 @@
         ],
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
-      "entries": 103,
-      "bytes": 101411,
-      "sha256": "b27ec4e4174730a2e34da63d8ca25fbf12ab736018e08b0b4d8e1c7c29b50aea"
+      "entries": 107,
+      "bytes": 105673,
+      "sha256": "64b19c377cd401416025cd3381c51557e9b58e5f30e8681e44d83cef77f497df"
     },
     {
       "zip": "doom.headreg-26.3.zip",
@@ -220,9 +220,9 @@
         ],
         "description": "doom.headreg — 玩家上线档案（自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与最近 10 段历史）。纯数据包实现，无依赖，普通玩家可用 /trigger 自助查询。"
       },
-      "entries": 103,
-      "bytes": 101358,
-      "sha256": "2cf3cc2edee08aa14edfe6f10ef3d34ee78fc8364210bde8aac9f730af254686"
+      "entries": 107,
+      "bytes": 105620,
+      "sha256": "132527260e97fba85742cbed739aa3772a9e630211c669d8f1c00380c7766899"
     },
     {
       "zip": "doom.headreg-resourcepack.zip",
