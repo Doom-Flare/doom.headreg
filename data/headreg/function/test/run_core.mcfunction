@@ -1,4 +1,4 @@
-# headreg:test/run_core —— 包内自断言（第 2/5 段）：会话记录 3 例 · 名字索引 7 例 · 日期极端值 4 例
+# headreg:test/run_core —— 包内自断言（第 2/6 段）：会话记录 3 例 · 名字索引 7 例 · 日期极端值 4 例
 # 由第 1 段 schedule 续跑；不要单独调用。计数 #calls/#pass/#fail 跨段累加。
 execute unless score #stg headreg.test matches 2 run return 0
 

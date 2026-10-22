@@ -1,4 +1,4 @@
-# headreg:test/run_tz_dst —— 包内自断言（第 5/5 段）：DST 切换点 6 例 · 负偏移护栏 1 例 · 归档重渲染 2 例 · 收尾与报告
+# headreg:test/run_tz_dst —— 包内自断言（第 5/6 段）：DST 切换点 6 例 · 负偏移护栏 1 例 · 归档重渲染 2 例
 # 由第 4 段 schedule 续跑；不要单独调用。
 execute unless score #stg headreg.test matches 5 run return 0
 
@@ -84,9 +84,5 @@ data remove storage headreg:ttmp last
 data modify storage headreg:config tz set from storage headreg:ttmp tz
 data remove storage headreg:ttmp tz
 
-scoreboard players set #stg headreg.test 0
-
-# ---------- 报告 ----------
-tellraw @a [{"text":"[headreg:test] ","color":"gray"},{"translate":"headreg.test.pass_prefix","fallback":"通过 ","color":"green"},{"score":{"name":"#pass","objective":"headreg.test"},"color":"green"},{"translate":"headreg.test.mid","fallback":" / 调用 ","color":"gray"},{"score":{"name":"#calls","objective":"headreg.test"}},{"translate":"headreg.test.fail_prefix","fallback":" / 失败 ","color":"red"},{"score":{"name":"#fail","objective":"headreg.test"},"color":"red"}]
-# 全部 5 段跑完：置完成标志（中途被链长截断时这里不会执行到）
-scoreboard players set #done headreg.test 1
+scoreboard players set #stg headreg.test 6
+schedule function headreg:test/run_audit 1t replace

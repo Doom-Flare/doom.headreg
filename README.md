@@ -4,10 +4,10 @@
 
 不装 mod、不改配置、不需要前置；没有 OP 的普通玩家也能用 `/trigger` 查自己的记录。
 
-- **实测版本**：**1.19.4 – 26.3，共 25 个版本全部真机跑通**（主线 22 版各 56/56 断言、legacy 3 版各 13/13 断言，全部 0 条加载错误），映射表见下方「版本支持」
+- **实测版本**：**1.19.4 – 26.3，共 25 个版本全部真机跑通**（主线 22 版各 72/72 断言、legacy 3 版各 13/13 断言，全部 0 条加载错误），映射表见下方「版本支持」
 - **本仓 `data/` 是 1.21 – 26.2 那一类**（16 个版本共用同一份数据树）；`legacy/` 下另有 1.19.4 – 1.20.1 的独立实现；其余版本请取 `dist/` 里对应的区间包
 - **依赖**：无。`data/minecraft/tags/function/{load,tick}.json` 已接好，放进 `world/datapacks/` 再 `/reload` 即可
-- **自检**：主线包内 56 个断言 + `api/audit` 7 项一致性检查；legacy 包内 13 个断言
+- **自检**：主线包内 72 个断言（含 `api/audit` 16 例）+ `api/audit` 7 项一致性检查；legacy 包内 13 个断言
 
 ---
 
@@ -16,7 +16,7 @@
 1. 按你的服务器版本取 `dist/` 里对应的区间包（见下方「版本支持」表），解压后把整个 `doom.headreg/` 放进 `world/datapacks/`
 2. 执行 `/reload`（或重启服务器）
 3. 确认：`/function headreg:api/list` 应回一行 `[headreg] 已登记玩家：`（装载失败会刷红字，成功时不提示）
-4. 自检：`/function headreg:test/run` → 主线包看到 `56/56`、legacy 包看到 `13/13` 即正常（主线分 5 段跑，等约 5 tick 再读数）
+4. 自检：`/function headreg:test/run` → 主线包看到 `72/72`、legacy 包看到 `13/13` 即正常（主线分 6 段跑，等约 6 tick 再读数）
 
 下载后核对：`dist/SHA256SUMS.txt`（release 里同名附件）列出的是**每个区间包**的校验值，不是解压后的文件。
 
@@ -26,7 +26,7 @@
 
 25 个版本逐个真机跑过（起服 → 部署 → `/reload` → 逐个点名全部函数 → 跑包内断言）。下表就是实测边界，**没有「理论上应该可以」的行**。
 
-最近一轮（v1.0.4）的复测口径：干净世界 → 装 `dist/` 对应区间包 → 起服 → 把 `maxCommandChainLength` / `max_command_sequence_length` 强制归一到 **65536**（各版本默认值）→ `/reload` → `function headreg:test/run` → **轮询 `#done headreg.test` 到 1**。25 档全部 **56/56（legacy 13/13）· 0 条加载错误**。
+最近一轮（v1.0.5）的复测口径：干净世界 → 装 `dist/` 对应区间包 → 起服 → 把 `maxCommandChainLength` / `max_command_sequence_length` 强制归一到 **65536**（各版本默认值）→ `/reload` → `function headreg:test/run` → **轮询 `#done headreg.test` 到 1**。25 档全部 **72/72（legacy 13/13）· 0 条加载错误**。
 
 | 取哪个包 | MC 版本 | `pack_format` |
 |---|---|---|
@@ -97,7 +97,7 @@ function headreg:api/query_name {name:"Doom_Flare"}      # 按名字查（底层
 execute as <玩家> run function headreg:api/audit         # 只读自检，7 项一致性
 function headreg:api/tz                                  # 看当前时区与夏令时状态
 function headreg:api/tz_set {tz:"paris"}                 # 切换时区（10 个内建 preset）
-function headreg:test/run                                # 包内 56 个断言
+function headreg:test/run                                # 包内 72 个断言
 ```
 
 这几个 api 都用 `tellraw @s` 输出，所以要 `execute as <在线玩家>` 才看得到结果；控制台执行只有返回值、没有可见文本。

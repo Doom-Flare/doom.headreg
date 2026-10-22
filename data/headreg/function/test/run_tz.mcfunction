@@ -1,4 +1,4 @@
-# headreg:test/run_tz —— 包内自断言（第 4/5 段）：时区 preset 10 例 @1792247007
+# headreg:test/run_tz —— 包内自断言（第 4/6 段）：时区 preset 10 例 @1792247007
 # 由第 3 段 schedule 续跑；不要单独调用。
 execute unless score #stg headreg.test matches 4 run return 0
 
@@ -77,6 +77,6 @@ function headreg:internal/render_date
 execute if data storage headreg:tmp {date:"2026-10-18 01:23:27"} run scoreboard players add #pass headreg.test 1
 execute unless data storage headreg:tmp {date:"2026-10-18 01:23:27"} run scoreboard players add #fail headreg.test 1
 
-# ---------- 交给第 5 段（DST · 护栏 · 归档重渲染 · 收尾与报告） ----------
+# ---------- 交给第 5 段（DST · 护栏 · 归档重渲染） ----------
 scoreboard players set #stg headreg.test 5
 schedule function headreg:test/run_tz_dst 1t replace

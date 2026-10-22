@@ -1,4 +1,4 @@
-# headreg:test/run_clock —— 包内自断言（第 3/5 段）：时钟换算 10 例（3 常规 + 7 偏移与跨重启）
+# headreg:test/run_clock —— 包内自断言（第 3/6 段）：时钟换算 10 例（3 常规 + 7 偏移与跨重启）
 # 由第 2 段 schedule 续跑；不要单独调用。headreg:ckbak 的备份与写回必须留在同一段内。
 execute unless score #stg headreg.test matches 3 run return 0
 

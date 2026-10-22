@@ -16,10 +16,10 @@
 1. 把对应版本的 `doom.headreg` 文件夹放进 `<服务器目录>/world/datapacks/`。
 2. 服务器里执行 `/reload`（或重启服务器）。
 3. 确认装好了：敲 `/function headreg:api/list`，应回一行 `[headreg] 已登记玩家：`（装失败会刷红字报错，成功时不吭声）。
-4. 想更彻底地自检，跑 `/function headreg:test/run`，主线包看到 `56/56`、legacy 包看到 `13/13` 全过即可。主线套件分 5 段、段间隔 1 tick 续跑，`/function` 之后约 5 tick 才出报告。
+4. 想更彻底地自检，跑 `/function headreg:test/run`，主线包看到 `72/72`、legacy 包看到 `13/13` 全过即可。主线套件分 6 段、段间隔 1 tick 续跑，`/function` 之后约 6 tick 才出报告。
    > 判据读计分板 `#calls` / `#pass` / `#fail headreg.test`（套件用 `tellraw` 上报，不进服务器日志；RCON 只会回 `Running function …`）。
 > **`#done headreg.test` 是完成标志**：全部断言跑完才置 1，开头一律先归零。中途被链长截断、或只手动跑了前几段，都停在 0 —— 外部脚本轮询它比看 `#calls` 是否稳定更可靠（`#stg` 归零也可能是「从没开始过」）。
-   > 套件本身要 8.5 万条命令，超过默认的 `max_command_sequence_length`（65536），所以才拆成 5 段。**不要**为了跑自检去改链长上限。
+   > 套件本身要 8.6 万条命令，超过默认的 `max_command_sequence_length`（65536），所以才拆成 6 段。**不要**为了跑自检去改链长上限。
 
 > 只装数据包，不用改 `server.properties`。正版检测在 `online-mode=true` 才有意义（下面会讲）。
 
@@ -52,7 +52,7 @@
 | `/function headreg:api/query_name {name:"Doom_Flare"}` | 按名字查 |
 | `/function headreg:api/clear` | 清掉**执行者自己**的登记记录（编号保留，不会重排） |
 | `/function headreg:api/audit` | 自查：7 项一致性检查，正常就一行绿字，有问题逐条红字列出来 |
-| `/function headreg:test/run` | 跑包内自带的测试（主线 56 个，分 5 段约 5 tick 跑完；legacy 13 个，一次跑完） |
+| `/function headreg:test/run` | 跑包内自带的测试（主线 72 个，分 6 段约 6 tick 跑完；legacy 13 个，一次跑完） |
 
 `query_id` / `query_name` 是宏函数，要带参数调用，直接在命令里写 `{id:10}` 或 `{name:"Doom_Flare"}`。
 
@@ -105,7 +105,7 @@ A：那是真问题，把红字原文发出来。常见的两类：索引和档�
 A：逐个玩家 `/function headreg:api/clear`；要彻底清，停服删 `world/datapacks/doom.headreg` 并清掉存档里的 `headreg:*` 计分板与 storage（或用新世界）。
 
 **Q：会不会卡？**
-A：常态开销很小：每 tick 三次遍历在线玩家（查新进服 / 判断重连 / 刷 `last_seen`），人少时就是几条命令；注册那一刻才做重活（一次 base64 解码，约 200 条命令，一次性）。自测用例是手动跑的（主线 56 条、legacy 13 条），不会自动执行。
+A：常态开销很小：每 tick 三次遍历在线玩家（查新进服 / 判断重连 / 刷 `last_seen`），人少时就是几条命令；注册那一刻才做重活（一次 base64 解码，约 200 条命令，一次性）。自测用例是手动跑的（主线 72 条、legacy 13 条），不会自动执行。
 
 ---
 

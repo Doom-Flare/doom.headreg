@@ -2,17 +2,45 @@
 
 > **口径**：namespace `headreg`（玩家上线档案：自动登记 / 正版判定 / 档案时间戳解码 / 会话时长与历史）。
 > 实测支持 **25 个 MC 版本（1.19.4 – 26.3）**，按数据树分 7 类，`dist/` 里每类一个区间包（映射表见 README「版本支持」）。
-> 主线（22 版，按数据树分 5 类）的包无依赖；自断言 `headreg:test/run`（**56 个用例**，分 5 段跨 tick 跑）+ 只读自检 `headreg:api/audit`（7 项）。
+> 主线（22 版，按数据树分 5 类）的包无依赖；自断言 `headreg:test/run`（**72 个用例**，分 6 段跨 tick 跑）+ 只读自检 `headreg:api/audit`（7 项）。
 > legacy 树（3 版：1.19.4 / 1.20 / 1.20.1）是**独立实现**，自断言 13 个用例，能力上限见 README「版本支持」。
 > 判定**必须**读计分板 `#pass/#fail/#calls headreg.test`（套件用 tellraw 上报，不进服务端日志）。
 > `#done headreg.test` 是完成标志（跑完置 1，开头先归零），轮询它比靠 `#calls` 稳定推断可靠。
-> 套件分 5 段、段间 `schedule … 1t` 续跑，`/function` 之后要等约 5 tick（0.25 秒）才出结果；切勿在 5 tick 内就下结论。
-> 下方各版本条目里的 **37 / 77** 是当时的实测数字，不是当前树 —— v1.0.3 起主线是 **56 条断言 / 100 个函数**。
+> 套件分 6 段、段间 `schedule … 1t` 续跑，`/function` 之后要等约 6 tick（0.3 秒）才出结果；切勿在 6 tick 内就下结论。
+> 下方各版本条目里的 **37 / 56 / 77** 是当时的实测数字，不是当前树 —— v1.0.5 起主线是 **72 条断言 / 101 个函数**。
 >
 > ✅ **2026-10-18 起主线 37/37，2026-10-21 扩到 56/56；2026-10-19 起 legacy 13/13 全绿**，并在 25 个 MC 版本上逐版复跑。
 > ✅ **2026-10-22 · v1.0.4**：修掉满历史档案查不出历史明细（默认链长下 tellraw 被截断），自检套件加 `#done` 完成标志；25 版逐版复测仍全绿。
+> ✅ **2026-10-22 · v1.0.5**：修掉 `audit_seg` 末段同时触发两条判定时 `#bad` 重复计数（「失败 2 项 / 共 7 项」自相矛盾）；自检套件补 `api/audit` 16 例（第 6 段），主线 56 → 72 条断言。
 
 ---
+
+## 2026-10-22 · v1.0.5 —— audit_seg 重复计数修复 + api/audit 补 16 例自检
+
+### 修掉一个只在脏数据上出现的计数 bug
+
+- **现象**：对一份「末段同时不自洽」的档案跑 `/function headreg:api/audit`，汇总行会打出「✗ 失败 **2** 项 / 共 **7** 项」——失败数比检查项还多，自相矛盾。
+- **根因**：`internal/audit_seg.mcfunction` 里两条判定各带一条独立的 `scoreboard players add #bad … 1`：一条查 `dur_sec` 与 `out_sec-in_sec` 是否相符（容差 ±1 秒），一条查末段时长是否为正。这两条**并不互斥**：`in_sec=100, out_sec=100, dur_sec=5` 时差值 `#d=0`（非正）而 `#e=3`（差 3 秒），两条同时命中 ⇒ `#bad` 加 2，而这一整段在 `audit_id.mcfunction` 只对应 1 个 `#n`。
+- **修法**：引入共用标志 `#h`（objective `headreg.audit`）。两条判定只把 `#h` 置 1，末尾统一 `execute if score #h headreg.audit matches 1 run scoreboard players add #bad headreg.audit 1`。两条红字提示**都保留**（用户仍能看到两处具体问题），只是失败项只记一次。`audit_seg.mcfunction` 由 11 行变 13 行。
+- **影响面**：`#h` 在全仓只被 `internal/decode_b64.mcfunction` 用在 `headreg.calc` objective，与 `headreg.audit` 互不相干。不涉及数据结构、不涉及任何正常档案（真实档案的 `dur_sec` 由 `settle_session` 写入，天然自洽）。
+- **legacy 树不动**：`legacy/…/audit_seg.mcfunction` 是逐槽位展开的另一套实现，`#au_bad` 与 `#au_n` 都以「段」为单位累加，不存在这种错配。
+
+### 自检套件补上 api/audit 覆盖（第 6 段 16 例）
+
+- `api/audit` 此前**零测试覆盖**——`data/headreg/function/test/` 里 grep `audit` 命中 0 行。
+- 新增 `data/headreg/function/test/run_audit.mcfunction`（16 例）：空档案 / 合法单段 / 时长不符 / 上条的回归夹具 / `dur_sec=0` / `out<in` 但时长自洽 / 末段 `out` 晚于 `last_leave_sec` / `exit_kind` 非枚举值 / 已结算缺 `prev_play` / 已结算 `prev_clean:0b` 放行 / 未结算不判 / 名字索引回指错 id / 无 `name` / 正版已结算缺 `last_leave_sec` / 完整正版全过 / `history` 超 10 段。
+- 断言只读计分板 `#bad` / `#n headreg.audit`，不依赖 tellraw——控制台执行时 `@s` 是服务端，tellraw 既不进聊天也不进日志。
+- 套件因此由 5 段变 **6 段**、56 例变 **72 例**，报告改由第 6 段发出，`#done headreg.test` 也在第 6 段末尾才置 1。
+- **回归有效性已验证**：把旧 `audit_seg` 放回去只跑第 6 段 → `16 例过 15 例、挂 1 例`（挂的正是那条回归夹具）；换回新实现 → 16/16。
+
+### 兼容性
+
+- 支持版本、`pack.mcmeta`、资源包格式、118 项文案**全部不变**，仍是 1.19.4 – 26.3 共 25 个版本、主线 72 条断言 / legacy 13 条。
+- 只改了 1 个 audit 函数 + 测试套件 + 文档，没有新增依赖、没有改数据结构、没有改时钟与渲染链路。
+
+### 真机验证
+
+- 25 个版本逐个真机复测，全部 `#calls == #pass`、`#fail = 0`、`#done = 1`、0 条加载错误：legacy 三版 13/13，其余 22 版 72/72。口径同 v1.0.4（干净世界 → 装区间包 → 起服 → 链长归一到 65536 → `/reload` → `function headreg:test/run` → 轮询 `#done`）。
 
 ## 2026-10-22 · v1.0.4 —— 满历史档案的历史明细修复 + 自检完成标志
 
