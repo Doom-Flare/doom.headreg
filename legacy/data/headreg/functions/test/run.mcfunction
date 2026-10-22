@@ -11,6 +11,8 @@ scoreboard players set #calls headreg.test 0
 scoreboard players set #pass headreg.test 0
 scoreboard players set #fail headreg.test 0
 scoreboard players set #failAt headreg.test 0
+# 完成标志：先归零，报告前才置 1；本函数在单 tick 内跑完，中途异常中断时保持 0
+scoreboard players set #done headreg.test 0
 
 # ---------- 1) assign_id 连续分配、互不重复 ----------
 # assign_id 的对象是 @s，故真起三个临时盔甲架（实体也能持有计分板分数），逐个跑真实的
@@ -233,3 +235,5 @@ data remove storage headreg:tmp fmt
 
 # ---------- 报告 ----------
 tellraw @a [{"text":"[headreg:test] ","color":"gray"},{"translate":"headreg.test.pass_prefix","fallback":"通过 ","color":"green"},{"score":{"name":"#pass","objective":"headreg.test"},"color":"green"},{"translate":"headreg.test.mid","fallback":" / 调用 ","color":"gray"},{"score":{"name":"#calls","objective":"headreg.test"}},{"text":" failAt=","color":"dark_red"},{"score":{"name":"#failAt","objective":"headreg.test"},"color":"dark_red"},{"translate":"headreg.test.fail_prefix","fallback":" / 失败 ","color":"red"},{"score":{"name":"#fail","objective":"headreg.test"},"color":"red"}]
+# 全部断言跑完：置完成标志
+scoreboard players set #done headreg.test 1

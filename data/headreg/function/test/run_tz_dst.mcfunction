@@ -88,3 +88,5 @@ scoreboard players set #stg headreg.test 0
 
 # ---------- 报告 ----------
 tellraw @a [{"text":"[headreg:test] ","color":"gray"},{"translate":"headreg.test.pass_prefix","fallback":"通过 ","color":"green"},{"score":{"name":"#pass","objective":"headreg.test"},"color":"green"},{"translate":"headreg.test.mid","fallback":" / 调用 ","color":"gray"},{"score":{"name":"#calls","objective":"headreg.test"}},{"translate":"headreg.test.fail_prefix","fallback":" / 失败 ","color":"red"},{"score":{"name":"#fail","objective":"headreg.test"},"color":"red"}]
+# 全部 5 段跑完：置完成标志（中途被链长截断时这里不会执行到）
+scoreboard players set #done headreg.test 1

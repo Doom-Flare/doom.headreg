@@ -5,12 +5,16 @@
 #       故 /function 之后约 5 tick 才见结果。第 2–5 段不要单独调用（各有 #stg 段号守卫）。
 # 覆盖：日期渲染 13 例（9 常规 + 4 极端）/ uuid 4 例 / 时钟换算 10 例 / 会话记录 3 例 /
 #       名字索引 7 例 / 时区 19 例，共 56 例
+# 完成标志：跑完第 5 段后 #done headreg.test = 1；中途被截断 / 只跑了前几段时保持 0。
+#       外部脚本应轮询 #done 而不是靠 #calls 稳定推断（#stg 归零也可能是「从未开始」）。
 # 边界：只覆盖不依赖玩家上下文的纯函数；会话结算（settle/exit_kind/session_stats）必须真机验证
 # 注意：uuid 用例会临时写 root.working_data.id、时钟用例会临时改写 headreg:clock（含 boot/prev，跑完原样恢复），
 #       不要在有人正在注册的那一 tick 执行
 scoreboard players set #calls headreg.test 0
 scoreboard players set #pass headreg.test 0
 scoreboard players set #fail headreg.test 0
+# 完成标志：先归零，等第 5 段跑完才置 1
+scoreboard players set #done headreg.test 0
 # 段号：每段开头校验，避免上一次未跑完的残留续段叠加计数
 scoreboard players set #stg headreg.test 1
 # 时区：本节所有既有断言假定 config.tz = "utc"；先存原值再强制 utc，收尾处恢复

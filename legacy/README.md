@@ -113,7 +113,8 @@ node .github/tools/check_dist.mjs    # 8 个区间包各自与源树逐字节一
 ```
 
 包内自断言套件：`function headreg:test/run`，13 条断言。
-判定读计分板 `#pass/#fail/#calls headreg.test`（套件用 tellraw 上报，不进服务端日志）。
+判定读计分板 `#pass/#fail/#calls headreg.test`（套件用 tellraw 上报，不进服务端日志）；
+`#done headreg.test` 是完成标志，跑完置 1、开头先归零。
 
 装法：把 `dist/doom.headreg-1.19.4.zip` 或 `dist/doom.headreg-1.20-1.20.1.zip` 解到
 `world/datapacks/`，进服后 `/reload`。**1.19.4 不会自动启用 `world/datapacks/` 下的包**，

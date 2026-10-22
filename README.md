@@ -26,7 +26,7 @@
 
 25 个版本逐个真机跑过（起服 → 部署 → `/reload` → 逐个点名全部函数 → 跑包内断言）。下表就是实测边界，**没有「理论上应该可以」的行**。
 
-最近一轮（v1.0.3 分段改造之后）的复测口径：干净世界 → 装 `dist/` 对应区间包 → 起服 → 把 `maxCommandChainLength` / `max_command_sequence_length` 强制归一到 **65536**（各版本默认值）→ `/reload` → `function headreg:test/run` → 轮询计分板到落定。25 档全部 **56/56（legacy 13/13）· 0 条加载错误**。
+最近一轮（v1.0.4）的复测口径：干净世界 → 装 `dist/` 对应区间包 → 起服 → 把 `maxCommandChainLength` / `max_command_sequence_length` 强制归一到 **65536**（各版本默认值）→ `/reload` → `function headreg:test/run` → **轮询 `#done headreg.test` 到 1**。25 档全部 **56/56（legacy 13/13）· 0 条加载错误**。
 
 | 取哪个包 | MC 版本 | `pack_format` |
 |---|---|---|
@@ -185,8 +185,9 @@ dist/doom.headreg-resourcepack.zip
 7. **时区不会自己变**：切到某个 preset 后，偏移由 `tz_set` 那一刻写入，之后只有夏令时会被自动算出。要跟随服务器真实时区，得靠管理员手动切一次。
 8. **时钟偏快不会自愈**：重锚门限是「档案时间比当前时钟快 ≥ 1 秒」，只向前校正。服务器时钟比真实时间快的时候会被跳过——这是刻意的，档案时间可能命中 Mojang 的 ProfileResolver 缓存而偏旧，允许回拨会把已经准确的时钟拉回去。
 9. **停服期间不补偿**：时基是 `clock.sec + floor((gametime − clock.tick) / 20)`，而 `gametime` 不含停机时间。停服 34 秒再开，时钟就落后 34 秒，要等下一次有正版档案进服才被拉回。
+10. **满历史查询吃满命令预算**：一条攒满 10 段历史的档案，单次渲染要做 23 次日期换算，实测 62379 条命令，占默认 `max_command_sequence_length`（65536）的 95.2%。数据与明细都能出全，但余量只有 4.8%；把链长调低到 6 万以下就会先丢明细、再丢字段。服务器装了别的重命令包时留意这条。
 
-以上 9 条主线与 legacy 共有（时区本身是主线功能，legacy 没有；legacy 的门限同样是只向前）。legacy 额外还有：没有名字索引、时间精度只到秒且 2038 溢出、`exit_peers` 恒 0、`prev_play` 是秒折算成 tick（精度更低）、`exit_kind` 有顺序依赖。
+以上 10 条主线与 legacy 共有（时区本身是主线功能，legacy 没有；legacy 的门限同样是只向前）。legacy 额外还有：没有名字索引、时间精度只到秒且 2038 溢出、`exit_peers` 恒 0、`prev_play` 是秒折算成 tick（精度更低）、`exit_kind` 有顺序依赖。
 
 ## 兼容性
 
