@@ -265,9 +265,9 @@ export const PATCHES = [
       // [文件, 原文, 拆成的两行]
       const rewrites = [
         ['internal/list_scan.mcfunction',
-          'execute if score #li headreg.calc > #init headreg.next run return run data remove storage headreg:scan larg',
-          ['execute if score #li headreg.calc > #init headreg.next run data remove storage headreg:scan larg',
-            'execute if score #li headreg.calc > #init headreg.next run return 0']],
+          'execute if score #li headreg.calc >= #ln headreg.calc run return run data remove storage headreg:scan larg',
+          ['execute if score #li headreg.calc >= #ln headreg.calc run data remove storage headreg:scan larg',
+            'execute if score #li headreg.calc >= #ln headreg.calc run return 0']],
         ['internal/render_history.mcfunction',
           'execute if score #qi headreg.calc > #qlen headreg.calc run return run data remove storage headreg:scan harg',
           ['execute if score #qi headreg.calc > #qlen headreg.calc run data remove storage headreg:scan harg',

@@ -1,5 +1,5 @@
-# headreg:internal/scan_peer_one —— 处理单个 id（宏：$(i)）
-execute if score #i headreg.calc = #sid headreg.calc run return 0
+# headreg:internal/scan_peer_one —— 处理单个 id（宏：$(i) = 真实 id，由 scan_peer 用 ids_at 翻出来）
+execute if score #cid headreg.calc = #sid headreg.calc run return 0
 data remove storage headreg:scan cur
 $data modify storage headreg:scan cur.name set from storage headreg:data root.$(i).data.name
 execute unless data storage headreg:scan cur.name run return 0

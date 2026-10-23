@@ -23,7 +23,9 @@ scoreboard players operation #tt2 headreg.calc = #tt headreg.calc
 scoreboard players operation #tt2 headreg.calc += #k2 headreg.calc
 scoreboard players set #glob headreg.calc 0
 scoreboard players set #seen headreg.calc 0
-scoreboard players set #i headreg.calc 1
+# 同伴扫描按活跃 id 列表走（storage headreg:ids list），#i 是列表下标，从 0 起
+function headreg:internal/ids_len
+scoreboard players set #i headreg.calc 0
 function headreg:internal/scan_peer
 data remove storage headreg:scan src
 data remove storage headreg:scan cur

@@ -10,6 +10,9 @@ execute unless data storage headreg:meta obj4 run function headreg:internal/ensu
 execute unless data storage headreg:meta obj5 run function headreg:internal/ensure_obj_query
 execute unless data storage headreg:meta obj6 run function headreg:internal/ensure_obj_qlist
 execute unless data storage headreg:meta obj7 run function headreg:internal/ensure_obj_audit
+# 活跃 id 列表（storage headreg:ids list）：api/list、同伴扫描、时区整表重渲都按它遍历。
+# 老存档升级时重建一次（分帧推进，完成时由 ids_rebuild_scan 自己置 ids1）；此后由 assign_id 追加入表。
+execute unless data storage headreg:meta ids1 run function headreg:internal/ids_rebuild
 # reload 不会重新走 on_join，这里补一次：为已在线的玩家开放 /trigger 自助查询
 scoreboard players enable @a headreg.query
 scoreboard players enable @a headreg.qlist

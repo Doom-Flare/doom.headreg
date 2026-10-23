@@ -1,7 +1,12 @@
 # headreg:internal/sub_year —— 把「距 1970-01-01 的天数」折算成「年 + 年内第几天」
 # 入口：#days = 天数（>=0），#year = 起始年（1970）
 # 出口：#days = 年内第几天（0 基），#year = 真实年份
-# 递归：每次减掉一整年，减不动就收敛。13 位 ms 最大对应 2286 年，递归深度 < 120。
+# 递归：每次减掉一整年，减不动就收敛。13 位 ms 最大对应 2286 年。
+#
+# 年数不靠逐年试减：先从 400 年周期整除粗估起算年（sub_year_seed），
+# 剩余不足 2 年再由下面的循环补正，递归深度从 56 层降到 <= 2 层。
+# 守卫用 366 而不是 365：剩余 365 天时估算段必然算出 0 年，白跑 20 条。
+execute if score #days headreg.calc matches 366.. run function headreg:internal/sub_year_seed
 #
 # 闰年判定：y%4==0 且 (y%100!=0 或 y%400==0)
 scoreboard players set #leap headreg.calc 0

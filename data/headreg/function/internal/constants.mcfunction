@@ -14,6 +14,8 @@ scoreboard players set #k7 headreg.calc 7
 scoreboard players set #k365 headreg.calc 365
 scoreboard players set #k366 headreg.calc 366
 scoreboard players set #k400 headreg.calc 400
+# 400 年整周期 = 146097 天（含 97 个闰日），sub_year_seed 用它做一次整除估年起
+scoreboard players set #k146097 headreg.calc 146097
 scoreboard players set #k3600 headreg.calc 3600
 scoreboard players set #k86400 headreg.calc 86400
 scoreboard players set #k1e1 headreg.calc 10

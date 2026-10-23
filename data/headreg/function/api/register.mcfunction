@@ -27,8 +27,7 @@ execute if score #found headreg.calc matches 0 run function headreg:internal/rep
 execute if score #found headreg.calc matches 0 run data remove storage headreg:data root.prev
 execute if score #found headreg.calc matches 0 run return 0
 
-# 4) 归档字段默认值
-data modify storage headreg:data root.working_data.uuid set from storage headreg:data root.working_data.id
+# 4) 归档字段默认值（uuid 不再落盘：全包无人读取，显示用的是 build_uuid 生成的 uuid_str）
 data modify storage headreg:data root.working_data.premium set value 0b
 data modify storage headreg:data root.working_data.ts_ms set value "0"
 data modify storage headreg:data root.working_data.ts_sec set value "0"
