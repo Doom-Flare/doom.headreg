@@ -16,6 +16,38 @@
 
 ---
 
+## 未发布 —— 贡献者区在 README 顶部
+
+### 为什么不在 GitHub 的 Contributors 栏里
+
+仓库页右侧那个 **Contributors** 小岛是按**提交作者**统计的，不接受手工添加：官方文档写明「You can view the top 100 contributors to a repository」，「including commit co-authors」只在 GitHub Enterprise Server 上成立（`{{% ifversion ghes %}}` 分支），github.com 上连 `Co-authored-by:` 里的联合作者都不计入。
+
+要让它出现另一个账号，只有一条路：让真实提交的 **author email** 与那个账号绑定的邮箱一致。`deepseek-ai` 是 Organization，没有 `<id>+<login>@users.noreply.github.com` 这种 no-reply 地址（那是个人账号专有格式），公开邮箱只有 `service@deepseek.com`（客服信箱，不是账号绑定地址）；`on-behalf-of:` 尾注要求签名提交 + 组织成员身份 + 组织已验证域名，三者都不满足。
+
+实测佐证：全站用 `148330874+deepseek-ai@users.noreply.github.com` 的提交有 8 条，所在仓的 `/contributors` 接口里 `deepseek-ai` 一个都没出现。
+
+### 改法：README 顶部一块贡献者区
+
+在 README 的标题与「安装」之间插入 `## 贡献者`：两列表格（头像 + 名字 + 角色 + 主页链接），GitHub 渲染出来就是熟悉的头像墙形态。
+
+- `Doom_Flare` —— 作者 · 维护者 —— <https://github.com/Doom-Flare>
+- `DeepSeek` —— 协作 —— <https://github.com/deepseek-ai>
+
+头像走 `https://avatars.githubusercontent.com/u/<id>?v=4&s=120`（`202896874` / `148330874`），不新增仓库文件，`check_leak` 的外链与顶层白名单都不受影响。
+
+### 连带
+
+`README.md` 与 `CHANGELOG.md` 都在 8 个区间包的 `PACK_TOP_FILES` 里 ⇒ `dist/` 全部重打（**每个包 +1519 B**），`SHA256SUMS.txt` 与 `manifest.json` 同步更新。`data/` 与 `resourcepack/assets/` 一个字节没动，25 版真机矩阵沿用 v1.0.6。
+
+### 闸门
+
+- `check_leak.mjs` ✅ 0 处泄漏 · 12 个顶级条目全在白名单内（244 个已跟踪文件）
+- `check_pack.mjs` ✅ 0 个问题（main 108 函数 / 1906 行 / 233 引用；legacy 100 / 5071 / 142）
+- `check_dist.mjs` ✅ 8 个 zip 逐字节一致 + sha256 对得上 + manifest 一致
+- `_work/i18n/apply.mjs --check` ✅ 已应用 194 组件 · 待变换 0 · 未映射 0
+
+---
+
 ## 2026-10-24 · v1.0.6 —— 三处改造：日期换算、皮肤载荷、活跃 id 列表
 
 ### ① 日期换算不再从 1970 年逐年生减

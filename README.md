@@ -11,6 +11,25 @@
 
 ---
 
+## 贡献者
+
+<table>
+  <tr>
+    <td align="center" width="120">
+      <a href="https://github.com/Doom-Flare"><img src="https://avatars.githubusercontent.com/u/202896874?v=4&s=120" width="64" height="64" alt="Doom-Flare"></a><br>
+      <sub><b>Doom_Flare</b></sub><br>
+      <sub>作者 · 维护者</sub>
+    </td>
+    <td align="center" width="120">
+      <a href="https://github.com/deepseek-ai"><img src="https://avatars.githubusercontent.com/u/148330874?v=4&s=120" width="64" height="64" alt="DeepSeek"></a><br>
+      <sub><b>DeepSeek</b></sub><br>
+      <sub>协作</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
 ## 安装
 
 1. 按你的服务器版本取 `dist/` 里对应的区间包（见下方「版本支持」表），解压后把整个 `doom.headreg/` 放进 `world/datapacks/`
